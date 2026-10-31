@@ -20,6 +20,7 @@
   "build": {
     "appId": "org.safedevops.desktop",
     "productName": "safe-devops",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "asar": true,
     "files": [
       "src/**",
