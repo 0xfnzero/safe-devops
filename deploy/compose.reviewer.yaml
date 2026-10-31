@@ -1,0 +1,17 @@
+# Deploy on an independent approval host, with its own private bundle.
+services:
+  reviewer:
+    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.1}
+    build: {context: .., dockerfile: deploy/docker/server.Dockerfile}
+    user: "${SAFEOPS_UID:?Set reviewer UID}:${SAFEOPS_GID:?Set reviewer GID}"
+    command: [reviewer, --config, /etc/safe-devops/reviewer.json]
+    env_file: ["${SAFEOPS_CONFIG_DIR:?Set independent reviewer bundle}/reviewer/reviewer.env"]
+    volumes: ["${SAFEOPS_CONFIG_DIR}/reviewer:/etc/safe-devops:ro"]
+    read_only: true
+    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}

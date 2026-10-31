@@ -1,0 +1,68 @@
+# Generate the separate service directories with `safe-devops init-compose`.
+services:
+  broker:
+    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.1}
+    build:
+      context: ..
+      dockerfile: deploy/docker/server.Dockerfile
+      args:
+        VERSION: ${SAFEOPS_VERSION:-0.4.1}
+    user: "${SAFEOPS_UID:?Run init-compose}:${SAFEOPS_GID:?Run init-compose}"
+    command: [broker, --config, /etc/safe-devops/broker.json]
+    env_file: ["${SAFEOPS_CONFIG_DIR:?Run init-compose}/broker/broker.env"]
+    volumes:
+      - ${SAFEOPS_CONFIG_DIR}/broker:/etc/safe-devops:ro
+      - ${SAFEOPS_CONFIG_DIR}/data/broker:/var/lib/safe-devops-broker
+      - ${SAFEOPS_CONFIG_DIR}/backups:/backups
+    ports: ["${SAFEOPS_BIND_ADDRESS:-127.0.0.1}:${SAFEOPS_BROKER_PORT:-8443}:8443"]
+    read_only: true
+    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    stop_grace_period: 20s
+    healthcheck:
+      test: [CMD, /usr/local/bin/safe-devops, health, --url, "https://broker:8443/readyz", --ca, /etc/safe-devops/db-ca.crt]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging: &logging
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  web:
+    image: safe-devops-web:${SAFEOPS_VERSION:-0.4.1}
+    build:
+      context: ..
+      dockerfile: deploy/docker/web.Dockerfile
+    user: "${SAFEOPS_UID}:${SAFEOPS_GID}"
+    env_file: ["${SAFEOPS_CONFIG_DIR}/web/web.env"]
+    volumes: ["${SAFEOPS_CONFIG_DIR}/web:/etc/safe-devops:ro"]
+    depends_on:
+      broker: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging: *logging
+  gateway:
+    image: caddy:2.10.2-alpine
+    user: "${SAFEOPS_UID}:${SAFEOPS_GID}"
+    command: [caddy, run, --config, /etc/safe-devops/Caddyfile, --adapter, caddyfile]
+    volumes: ["${SAFEOPS_CONFIG_DIR}/gateway:/etc/safe-devops:ro"]
+    ports: ["${SAFEOPS_BIND_ADDRESS:-127.0.0.1}:${SAFEOPS_WEB_PORT:-443}:8443"]
+    depends_on:
+      web: {condition: service_healthy}
+    read_only: true
+    environment: {XDG_DATA_HOME: /tmp/data, XDG_CONFIG_HOME: /tmp/config}
+    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    logging: *logging

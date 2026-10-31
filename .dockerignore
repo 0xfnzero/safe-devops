@@ -1,0 +1,10 @@
+.git
+.safeops
+bin
+dist
+**/node_modules
+**/.next
+**/*.key
+**/*.token
+**/*.db*
+**/.env*

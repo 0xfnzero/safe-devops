@@ -1,0 +1,12 @@
+# Replace these teams with real independent reviewers, then install at .github/CODEOWNERS.
+# A template with nonexistent teams does not enforce review.
+* @YOUR-ORG/maintainers
+/.github/ @YOUR-ORG/security
+/deploy/ @YOUR-ORG/security
+/server/internal/agent/ @YOUR-ORG/security
+/server/internal/broker/ @YOUR-ORG/security
+/server/internal/core/ @YOUR-ORG/security
+/server/internal/store/ @YOUR-ORG/security
+/server/cmd/ @YOUR-ORG/security
+/scripts/ @YOUR-ORG/security
+/web/next.config.ts @YOUR-ORG/security

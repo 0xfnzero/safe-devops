@@ -1,0 +1,98 @@
+name: Build packages
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version (for example 0.4.1-rc.1)
+        required: true
+        default: 0.4.1
+permissions:
+  contents: read
+jobs:
+  server-web:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {runner: ubuntu-latest, target: linux, arch: amd64}
+          - {runner: ubuntu-24.04-arm, target: linux, arch: arm64}
+          - {runner: macos-15-intel, target: darwin, arch: amd64}
+          - {runner: macos-15, target: darwin, arch: arm64}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: npm ci
+        working-directory: web
+      - run: make test-scripts
+      - run: make package-server OS=${{ matrix.target }} ARCH=${{ matrix.arch }}
+      - run: make package-web
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: server-web-${{ matrix.target }}-${{ matrix.arch }}
+          path: |
+            dist/*.tar.gz
+            dist/*.tar.gz.sha256
+          if-no-files-found: error
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {runner: ubuntu-latest, target: linux, arch: amd64}
+          - {runner: ubuntu-24.04-arm, target: linux, arch: arm64}
+          - {runner: macos-15-intel, target: macos, arch: amd64}
+          - {runner: macos-15, target: macos, arch: arm64}
+          - {runner: windows-latest, target: windows, arch: amd64}
+          - {runner: windows-latest, target: windows, arch: arm64}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    env:
+      VERSION: ${{ inputs.version }}
+      DESKTOP_OS: ${{ matrix.target }}
+      DESKTOP_ARCH: ${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: npm ci
+        working-directory: desktop
+      - run: npm test
+        working-directory: desktop
+      # Python entry point also works without GNU Make on Windows.
+      - run: python scripts/package.py desktop
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: desktop-${{ matrix.target }}-${{ matrix.arch }}
+          path: |
+            dist/safe-devops-desktop-*/*.dmg
+            dist/safe-devops-desktop-*/*.zip
+            dist/safe-devops-desktop-*/*.exe
+            dist/safe-devops-desktop-*/*.AppImage
+            dist/safe-devops-desktop-*/*.deb
+            dist/safe-devops-desktop-*/SHA256SUMS
+          if-no-files-found: error

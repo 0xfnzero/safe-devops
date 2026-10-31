@@ -1,0 +1,30 @@
+# Selected automatically by scripts/compose.sh when init-compose used postgres.
+services:
+  broker:
+    depends_on:
+      postgres: {condition: service_healthy}
+  postgres:
+    image: postgres:17.7-bookworm
+    environment:
+      POSTGRES_DB: safeops
+      POSTGRES_USER: safeops
+      POSTGRES_PASSWORD_FILE: /run/safe-devops/password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    entrypoint: [/bin/bash, /opt/safe-devops/postgres-entrypoint.sh]
+    volumes:
+      - ${SAFEOPS_CONFIG_DIR}/postgres:/run/safe-devops:ro
+      - ./docker/postgres-entrypoint.sh:/opt/safe-devops/postgres-entrypoint.sh:ro
+      - postgres-data:/var/lib/postgresql/data
+    tmpfs: [/run/postgresql, /tmp]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U safeops -d safeops"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+volumes:
+  postgres-data:

@@ -1,0 +1,36 @@
+[Unit]
+Description=safe-devops independent AI reviewer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=safe-devops-reviewer
+Group=safe-devops-reviewer
+EnvironmentFile=/etc/safe-devops/reviewer.env
+ExecStartPre=/usr/local/bin/safe-devops check-config --role reviewer --config /etc/safe-devops/reviewer.json
+ExecStart=/usr/local/bin/safe-devops reviewer --config /etc/safe-devops/reviewer.json
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=256M
+TasksMax=32
+CPUQuota=50%
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,983 @@
+/* A single transcript surface shared by the browser and native client. */
+.terminal-view .main-area {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.terminal-view .topbar {
+  height: 54px;
+  flex-shrink: 0;
+  padding: 0 22px;
+}
+.terminal-view .demo-banner {
+  flex-shrink: 0;
+  padding: 6px 22px;
+}
+.terminal-view .content {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.terminal-view .page-heading,
+.terminal-view .content > footer {
+  display: none;
+}
+.terminal-view .content > .message,
+.terminal-view .account-lock-banner {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+@media (min-width: 901px) {
+  .terminal-view .sidebar {
+    width: 64px;
+    padding: 18px 9px;
+    align-items: center;
+  }
+  .terminal-view .main-area {
+    margin-left: 64px;
+  }
+  .terminal-view .sidebar > .wordmark {
+    font-size: 0;
+    gap: 0;
+    padding: 0;
+  }
+  .terminal-view .workspace-label,
+  .terminal-view .nav-label,
+  .terminal-view .sidebar-bottom {
+    display: none;
+  }
+  .terminal-view .sidebar nav {
+    margin-top: 30px;
+    width: 100%;
+    gap: 8px;
+  }
+  .terminal-view .sidebar nav button {
+    justify-content: center;
+    padding: 13px 0;
+  }
+  .terminal-view .sidebar .nav-text,
+  .terminal-view .sidebar .nav-count {
+    display: none;
+  }
+}
+.command-workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.terminal-servers {
+  width: 210px;
+  flex-shrink: 0;
+  background: var(--sidebar);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 16px 10px 12px;
+}
+.servers-hidden .terminal-servers {
+  display: none;
+}
+.terminal-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 6px;
+}
+.terminal-section-title > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.terminal-section-title small {
+  font-weight: 400;
+  color: var(--muted);
+}
+.server-search {
+  margin: 16px 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 10px;
+  color: var(--muted);
+}
+.server-search input {
+  background: transparent;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  padding: 9px 0;
+  box-shadow: none;
+  font-size: 12px;
+}
+.server-search input:focus {
+  outline: 0;
+  box-shadow: none;
+}
+.terminal-server-group {
+  margin-bottom: 18px;
+}
+.terminal-server-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 6px 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+.terminal-server-group > button {
+  width: 100%;
+  padding: 12px 8px;
+  border: 0;
+  background: transparent;
+  border-radius: 6px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+.terminal-server-group > button:hover {
+  background: var(--surface-alt);
+}
+.terminal-server-group > button.selected {
+  background: var(--tint);
+  color: var(--ink);
+}
+.terminal-server-group > button > span {
+  flex: 1;
+  min-width: 0;
+}
+.terminal-server-group strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.terminal-server-group small {
+  display: block;
+  font-size: 9px;
+  margin-top: 5px;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+}
+.online-dot,
+.offline-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--success);
+}
+.offline-dot {
+  background: var(--muted);
+}
+.server-rail-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding: 18px 6px 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.server-rail-footer > svg {
+  flex-shrink: 0;
+  color: var(--success);
+}
+.server-rail-footer small {
+  display: block;
+  font-size: 10px;
+  margin-top: 6px;
+}
+.terminal-muted {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px;
+}
+.terminal-workbench {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.terminal-tabbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 45px;
+  flex-shrink: 0;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--line);
+  padding: 0 10px;
+}
+.terminal-tabs {
+  display: flex;
+  align-self: stretch;
+  min-width: 0;
+  flex: 1;
+  overflow: auto;
+}
+.terminal-tab {
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid transparent;
+  padding: 0 8px;
+  flex-shrink: 0;
+  gap: 6px;
+}
+.terminal-tab.active {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+.terminal-tab button {
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  gap: 7px;
+}
+.terminal-tab.active button {
+  color: var(--ink);
+}
+.terminal-new {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 8px;
+  white-space: nowrap;
+}
+.terminal-new:hover {
+  color: var(--primary);
+}
+.terminal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+}
+.terminal-icon:hover,
+.terminal-icon.active {
+  color: var(--ink);
+  background: var(--surface-alt);
+}
+.terminal-tabpanel {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+.terminal-tabpanel[hidden] {
+  display: none;
+}
+.server-console {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.console-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.console-selects {
+  display: flex;
+  min-width: 0;
+  gap: 18px;
+  flex: 1;
+}
+.console-selects label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.console-selects label > span {
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.console-selects select {
+  font-size: 11px;
+  padding: 4px 20px 4px 4px;
+  border: 0;
+  background-color: transparent;
+  max-width: 200px;
+  min-width: 0;
+  border-radius: 4px;
+}
+.console-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.terminal-purpose {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--line);
+}
+.terminal-purpose > span {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.terminal-purpose input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+.terminal-grant {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: var(--success-bg);
+  color: var(--success);
+  font-size: 11px;
+  flex-wrap: wrap;
+}
+.terminal-grant.waiting {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.terminal-grant button {
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-size: 10px;
+  background: transparent;
+  margin-left: auto;
+}
+.terminal-body {
+  flex: 1;
+  display: flex;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  background: var(--bg);
+}
+[data-theme="light"] .terminal-body {
+  background: #fff;
+}
+.console-output {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  padding: 23px 28px 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", "Menlo", monospace;
+  line-height: 1.65;
+}
+.console-transcript {
+  min-height: 100%;
+}
+.terminal-welcome {
+  color: var(--muted);
+  font-size: 12px;
+  padding-bottom: 24px;
+}
+.terminal-welcome > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+.terminal-welcome strong {
+  font-weight: 500;
+}
+.terminal-welcome > div > span {
+  font-size: 9px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 6px;
+  letter-spacing: 0.4px;
+}
+.terminal-welcome p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.terminal-quickstart {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.terminal-quickstart button {
+  gap: 14px;
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink);
+}
+.console-entry {
+  margin-bottom: 16px;
+}
+.console-command {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1.8;
+  min-width: 0;
+}
+.console-user {
+  color: var(--success);
+  font-weight: 500;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+.console-dollar {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.console-command code {
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  flex: 1;
+  min-width: 0;
+}
+.console-command time {
+  font-size: 10px;
+  color: var(--muted);
+  opacity: 0.7;
+  margin-left: auto;
+}
+.command-recall {
+  opacity: 0;
+  padding: 3px;
+}
+.console-command:hover .command-recall,
+.command-recall:focus-visible {
+  opacity: 1;
+}
+.console-result-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 4px;
+  font-size: 10px;
+  color: var(--muted);
+  margin: 2px 0 6px;
+  min-height: 18px;
+}
+.console-result-meta > svg {
+  color: var(--success);
+}
+.console-result-meta .meta-divider {
+  opacity: 0.5;
+}
+.console-result-meta button {
+  display: inline-flex;
+  gap: 4px;
+  font: inherit;
+  padding: 0 3px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+.console-result-meta button:hover {
+  color: var(--primary);
+}
+.console-result-meta.needs-human,
+.state-failed .console-result-meta,
+.exit-error {
+  color: var(--warning);
+}
+.terminal-status-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.console-handoff {
+  color: var(--warning);
+  font-size: 12px;
+  margin: 4px 0 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.console-result {
+  position: relative;
+}
+.console-result pre {
+  color: var(--ink);
+  opacity: 0.88;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  margin: 0;
+  padding: 0 26px 0 0;
+  border: 0;
+  background: none;
+}
+.copy-output {
+  position: absolute;
+  right: 0;
+  top: 1px;
+  opacity: 0;
+}
+.console-result:hover .copy-output,
+.copy-output:focus-visible {
+  opacity: 1;
+}
+.console-result > small {
+  color: var(--warning);
+  font-size: 11px;
+}
+.console-prompt-form {
+  position: relative;
+  margin-top: 8px;
+}
+.console-input-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  width: 100%;
+}
+.console-input-line input {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  color: var(--ink);
+  caret-color: var(--success);
+  font: inherit;
+  font-weight: 500;
+  padding: 8px 0;
+}
+.console-input-line input::placeholder {
+  font-weight: 400;
+  color: var(--muted);
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+.console-input-line input:focus {
+  outline: 0;
+  box-shadow: none;
+}
+.terminal-run {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 5px;
+  flex-shrink: 0;
+  padding: 5px;
+}
+.terminal-run:not(:disabled):hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.terminal-input-hint {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  opacity: 0.6;
+  padding-top: 4px;
+  line-height: 1.7;
+}
+.terminal-end-space {
+  min-height: 60px;
+}
+.terminal-cleared,
+.terminal-inline-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 14px;
+  font-size: 11px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.terminal-cleared button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: var(--primary);
+}
+.terminal-inline-error {
+  font-size: 12px;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+  margin: 8px 0;
+}
+.terminal-statusbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding: 7px 16px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.terminal-statusbar > span,
+.terminal-statusbar > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.terminal-statusbar > span > svg {
+  color: var(--success);
+}
+.terminal-statusbar button {
+  border: 0;
+  background: transparent;
+  padding: 2px 5px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.terminal-statusbar button:hover {
+  color: var(--ink);
+}
+.terminal-completions {
+  padding: 8px;
+  margin: 4px 0;
+  width: min(520px, 100%);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px #0001;
+}
+.terminal-completions > small {
+  color: var(--muted);
+  font-size: 10px;
+  display: block;
+  padding: 3px 8px 6px;
+}
+.terminal-completions > button {
+  width: 100%;
+  border: 0;
+  padding: 5px 8px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  font-size: 12px;
+}
+.terminal-completions > button.selected,
+.terminal-completions > button:hover {
+  background: var(--tint);
+}
+.console-guide {
+  width: 260px;
+  flex-shrink: 0;
+  padding: 16px;
+  overflow: auto;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+}
+.console-guide .terminal-section-title {
+  padding: 0;
+}
+.console-guide p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 12px 0;
+}
+.console-guide h4 {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 500;
+  margin: 20px 0 10px;
+}
+.console-example {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 6px 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ink);
+  text-align: left;
+  font-size: 11px;
+}
+.console-example code {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.console-example svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.console-example:hover {
+  color: var(--primary);
+}
+.console-root {
+  display: grid;
+  gap: 5px;
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+.console-root span {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.terminal-history {
+  position: absolute;
+  inset: 15px auto auto 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 30px));
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 15px 60px #0004;
+  z-index: 5;
+}
+.terminal-history > input {
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px;
+  font-size: 13px;
+}
+.terminal-history > div:last-child {
+  max-height: 280px;
+  overflow: auto;
+}
+.terminal-history > div:last-child button {
+  border: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  background: transparent;
+  color: var(--ink);
+  width: 100%;
+  padding: 9px 8px;
+  text-align: left;
+  font-size: 12px;
+  border-radius: 4px;
+}
+.terminal-history > div:last-child button:hover {
+  background: var(--tint);
+}
+.terminal-history code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.terminal-history p {
+  padding: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.terminal-spin {
+  animation: terminal-spin 1s linear infinite;
+}
+@keyframes terminal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .terminal-spin {
+    animation: none;
+  }
+}
+@media (max-width: 1200px) {
+  .terminal-servers {
+    width: 180px;
+  }
+  .console-selects {
+    gap: 10px;
+  }
+  .console-selects label > span {
+    display: none;
+  }
+  .console-output {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .console-guide {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 4;
+    box-shadow: -15px 0 35px #0002;
+    width: 290px;
+    max-width: 85%;
+  }
+}
+@media (max-width: 900px) {
+  .terminal-view {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    min-height: 0;
+  }
+  .terminal-view .sidebar {
+    flex-shrink: 0;
+    padding: 8px 12px 0;
+  }
+  .terminal-view .sidebar > .wordmark {
+    display: none;
+  }
+  .terminal-view .sidebar nav {
+    padding-bottom: 8px;
+  }
+  .terminal-view .main-area {
+    height: auto;
+    flex: 1;
+    min-height: 0;
+  }
+  .terminal-view .content {
+    padding: 10px;
+  }
+  .terminal-servers {
+    width: 170px;
+  }
+  .console-user {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+@media (max-width: 700px) {
+  .terminal-view .demo-banner p {
+    display: none;
+  }
+  .terminal-view .demo-banner {
+    padding: 5px 14px;
+  }
+  .terminal-view .content {
+    padding: 0;
+  }
+  .command-workspace {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    position: relative;
+  }
+  .terminal-servers {
+    width: 190px;
+    position: absolute;
+    inset: 45px auto 0 0;
+    z-index: 6;
+    box-shadow: 10px 0 30px #0002;
+  }
+  .terminal-tabbar {
+    padding: 0 8px;
+  }
+  .terminal-new span {
+    display: none;
+  }
+  .console-toolbar {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .console-selects {
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .console-selects select {
+    max-width: 140px;
+    font-size: 10px;
+  }
+  .console-tools {
+    gap: 0;
+  }
+  .console-output {
+    padding: 16px 14px 0;
+  }
+  .console-command {
+    flex-wrap: wrap;
+    gap: 3px 8px;
+  }
+  .console-command > .console-user {
+    display: none;
+  }
+  .console-input-line {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .console-input-line .console-user {
+    width: 100%;
+    max-width: none;
+  }
+  .console-input-line input {
+    font-size: 16px;
+  }
+  .console-command time {
+    display: none;
+  }
+  .console-result-meta {
+    font-size: 10px;
+  }
+  .command-recall,
+  .copy-output {
+    opacity: 0.7;
+  }
+  .terminal-statusbar {
+    padding: 7px 10px;
+  }
+  .terminal-statusbar > span {
+    max-width: 50%;
+  }
+  .terminal-purpose {
+    padding: 8px 12px;
+  }
+  .terminal-input-hint {
+    font-size: 9px;
+  }
+}

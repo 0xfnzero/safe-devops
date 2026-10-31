@@ -1,0 +1,27 @@
+{
+  "id": "ai-reviewer",
+  "broker_url": "https://broker.internal:8443",
+  "ca": "/etc/safe-devops/broker-ca.crt",
+  "token_env": "SAFEOPS_REVIEWER_TOKEN",
+  "private_key_file": "/etc/safe-devops/reviewer.key",
+  "endpoint": "https://REPLACE_MODEL_HOST/v1/chat/completions",
+  "model": "REPLACE_EXPLICIT_MODEL_ID",
+  "api_key_env": "SAFEOPS_MODEL_API_KEY",
+  "min_confidence": 0.9,
+  "simulation": false,
+  "rules": [
+    {
+      "target": "linux-prod-01",
+      "action": "disk-usage",
+      "command_hash": "REPLACE_DISK_HASH_RUNBOOK_OUTPUT",
+      "requesters": [
+        "alice"
+      ],
+      "risk": "medium",
+      "max_ttl_seconds": 900,
+      "max_uses": 5,
+      "project_id": "payments"
+    }
+  ],
+  "workspace_id": "acme"
+}

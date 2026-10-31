@@ -1,0 +1,28 @@
+[Unit]
+Description=safe-devops privileged signed change executor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=root
+Group=safe-devops-connector
+ExecStart=/usr/local/bin/safe-devops change-runner --config /etc/safe-devops/change-runner.json
+Restart=on-failure
+RestartSec=5
+RuntimeDirectory=safe-devops-change
+RuntimeDirectoryMode=0750
+StateDirectory=safe-devops-change-runner
+StateDirectoryMode=0700
+UMask=0077
+PrivateTmp=true
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=512M
+TasksMax=128
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

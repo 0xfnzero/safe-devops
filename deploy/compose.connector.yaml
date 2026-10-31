@@ -1,0 +1,18 @@
+# Runs fixed diagnostics INSIDE this container; it does not operate the host.
+services:
+  connector:
+    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.1}
+    build: {context: .., dockerfile: deploy/docker/server.Dockerfile}
+    user: "${SAFEOPS_UID:?Set the UID owning the connector bundle}:${SAFEOPS_GID:?Set the GID}"
+    command: [connector, --config, /etc/safe-devops/connector.json]
+    volumes:
+      - ${SAFEOPS_CONFIG_DIR:?Set the bundle parent directory}/connector:/etc/safe-devops:ro
+      - ${SAFEOPS_CONFIG_DIR}/data/connector:/var/lib/safe-devops-connector
+    read_only: true
+    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}

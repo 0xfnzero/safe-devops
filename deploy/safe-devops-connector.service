@@ -1,0 +1,38 @@
+[Unit]
+Description=safe-devops outbound Server Connector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=safe-devops-connector
+Group=safe-devops-connector
+ExecStartPre=/usr/local/bin/safe-devops check-config --role connector --config /etc/safe-devops/connector.json
+ExecStart=/usr/local/bin/safe-devops connector --config /etc/safe-devops/connector.json
+Restart=on-failure
+RestartSec=5
+StateDirectory=safe-devops-connector
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/safe-devops-connector
+MemoryMax=256M
+TasksMax=32
+CPUQuota=50%
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

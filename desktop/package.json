@@ -1,0 +1,66 @@
+{
+  "name": "safe-devops-desktop",
+  "version": "0.4.1",
+  "private": true,
+  "description": "Open-source secure DevOps terminal with device-bound access, scoped commands and AI/human approval.",
+  "author": "safe-devops contributors",
+  "license": "MIT",
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dev": "SAFE_DEVOPS_ALLOW_LOCAL=1 electron .",
+    "test": "node --test src/*.test.cjs",
+    "pack": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir --publish never",
+    "dist": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --publish never"
+  },
+  "devDependencies": {
+    "electron": "45.2.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "org.safedevops.desktop",
+    "productName": "safe-devops",
+    "asar": true,
+    "files": [
+      "src/**",
+      "!src/*.test.cjs"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": true,
+      "identity": null
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "homepage": "https://fnzero.dev/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0xfnzero/safe-devops.git",
+    "directory": "desktop"
+  },
+  "bugs": {
+    "url": "https://github.com/0xfnzero/safe-devops/issues"
+  }
+}

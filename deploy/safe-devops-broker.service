@@ -1,0 +1,38 @@
+[Unit]
+Description=safe-devops authorization control plane
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=safe-devops-broker
+Group=safe-devops-broker
+EnvironmentFile=/etc/safe-devops/broker.env
+ExecStartPre=/usr/local/bin/safe-devops check-config --role broker --config /etc/safe-devops/broker.json
+ExecStart=/usr/local/bin/safe-devops broker --config /etc/safe-devops/broker.json
+Restart=on-failure
+RestartSec=5
+StateDirectory=safe-devops-broker
+StateDirectoryMode=0700
+ReadWritePaths=/var/lib/safe-devops-broker
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=512M
+TasksMax=64
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

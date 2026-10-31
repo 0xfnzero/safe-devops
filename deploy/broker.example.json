@@ -1,0 +1,135 @@
+{
+  "listen": "0.0.0.0:8443",
+  "tls_cert": "/etc/safe-devops/broker.crt",
+  "tls_key": "/etc/safe-devops/broker-tls.key",
+  "client_ca": "/etc/safe-devops/connector-ca.crt",
+  "database": {
+    "driver": "sqlite",
+    "sqlite_path": "/var/lib/safe-devops-broker/safeops.db"
+  },
+  "workspaces": [
+    {
+      "private_key_file": "/etc/safe-devops/acme-broker.key",
+      "principals": [
+        {
+          "id": "alice",
+          "name": "Developer",
+          "roles": [
+            "requester"
+          ],
+          "token_hash": "REPLACE_SHA256_TOKEN"
+        },
+        {
+          "id": "bob",
+          "name": "Security approver",
+          "roles": [
+            "approver"
+          ],
+          "token_hash": "REPLACE_SHA256_TOKEN",
+          "public_key": "REPLACE_BASE64_ED25519_PUBLIC_KEY"
+        },
+        {
+          "id": "carol",
+          "name": "Operations approver",
+          "roles": [
+            "approver"
+          ],
+          "token_hash": "REPLACE_SHA256_TOKEN",
+          "public_key": "REPLACE_BASE64_ED25519_PUBLIC_KEY"
+        },
+        {
+          "id": "auditor",
+          "name": "Auditor",
+          "roles": [
+            "auditor"
+          ],
+          "token_hash": "REPLACE_SHA256_TOKEN"
+        },
+        {
+          "id": "ai-reviewer",
+          "name": "Independent AI reviewer",
+          "kind": "ai",
+          "roles": [
+            "approver"
+          ],
+          "token_hash": "REPLACE_UNIQUE_AI_TOKEN_SHA256",
+          "public_key": "REPLACE_AI_ED25519_PUBLIC_KEY"
+        }
+      ],
+      "agents": [
+        {
+          "id": "acme-connector-01",
+          "target": "linux-prod-01"
+        }
+      ],
+      "targets": [
+        {
+          "id": "linux-prod-01",
+          "name": "Production node 01",
+          "environment": "PRODUCTION",
+          "requesters": [
+            "alice"
+          ],
+          "actions": [
+            {
+              "id": "system-info",
+              "name": "Kernel info",
+              "description": "Read kernel information",
+              "command_hash": "REPLACE_HASH_RUNBOOK_OUTPUT",
+              "approvers": [
+                "bob",
+                "carol"
+              ],
+              "quorum": 2,
+              "timeout_seconds": 10,
+              "review": {
+                "mode": "manual",
+                "risk": "high",
+                "max_uses": 1,
+                "rate_limit_per_minute": 6
+              }
+            },
+            {
+              "id": "disk-usage",
+              "name": "Disk usage",
+              "description": "AI review with independent human fallback",
+              "command_hash": "REPLACE_DISK_HASH_RUNBOOK_OUTPUT",
+              "approvers": [
+                "bob",
+                "carol",
+                "ai-reviewer"
+              ],
+              "quorum": 1,
+              "timeout_seconds": 10,
+              "review": {
+                "mode": "ai",
+                "risk": "medium",
+                "max_uses": 5,
+                "rate_limit_per_minute": 6
+              }
+            }
+          ],
+          "project_id": "payments"
+        }
+      ],
+      "id": "acme",
+      "name": "Acme",
+      "projects": [
+        {
+          "id": "payments",
+          "name": "Payments",
+          "members": [
+            "alice",
+            "bob",
+            "carol",
+            "ai-reviewer"
+          ]
+        }
+      ],
+      "device_policy": {
+        "required": true,
+        "devices": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "acme-connector-01",
+  "target": "linux-prod-01",
+  "broker_url": "https://broker.internal:8443",
+  "broker_public_key": "REPLACE_BASE64_BROKER_ED25519_PUBLIC_KEY",
+  "approver_keys": {
+    "bob": "REPLACE_BASE64_ED25519_PUBLIC_KEY",
+    "carol": "REPLACE_BASE64_ED25519_PUBLIC_KEY",
+    "ai-reviewer": "REPLACE_AI_ED25519_PUBLIC_KEY"
+  },
+  "runbooks": {
+    "system-info": {
+      "argv": [
+        "/usr/bin/uname",
+        "-srm"
+      ],
+      "timeout_seconds": 10,
+      "approvers": [
+        "bob",
+        "carol"
+      ],
+      "quorum": 2,
+      "requesters": [
+        "alice"
+      ],
+      "review": {
+        "mode": "manual",
+        "risk": "high",
+        "max_uses": 1,
+        "rate_limit_per_minute": 6
+      }
+    },
+    "disk-usage": {
+      "argv": [
+        "/bin/df",
+        "-h"
+      ],
+      "timeout_seconds": 10,
+      "approvers": [
+        "bob",
+        "carol",
+        "ai-reviewer"
+      ],
+      "quorum": 1,
+      "requesters": [
+        "alice"
+      ],
+      "review": {
+        "mode": "ai",
+        "risk": "medium",
+        "max_uses": 5,
+        "rate_limit_per_minute": 6
+      }
+    }
+  },
+  "ledger_file": "/var/lib/safe-devops-connector/ledger.json",
+  "tls_cert": "/etc/safe-devops/connector.crt",
+  "tls_key": "/etc/safe-devops/connector-tls.key",
+  "ca": "/etc/safe-devops/broker-ca.crt",
+  "approver_kinds": {
+    "bob": "human",
+    "carol": "human",
+    "ai-reviewer": "ai"
+  },
+  "workspace_id": "acme",
+  "project_id": "payments"
+}

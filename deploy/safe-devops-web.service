@@ -1,0 +1,35 @@
+[Unit]
+Description=safe-devops team operations console
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=safe-devops-web
+Group=safe-devops-web
+WorkingDirectory=/opt/safe-devops/web
+Environment=NODE_ENV=production
+Environment=HOSTNAME=127.0.0.1
+Environment=PORT=3000
+EnvironmentFile=/etc/safe-devops/web.env
+ExecStart=/usr/bin/node /opt/safe-devops/web/server.js
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=768M
+TasksMax=128
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target
