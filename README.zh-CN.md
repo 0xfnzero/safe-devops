@@ -39,8 +39,6 @@
     <a href="https://discord.gg/vuazbGkqQE">Discord</a>
 </p>
 
-当前版本：**0.4.1**。[版本下载](https://github.com/0xfnzero/safe-devops/releases) · [部署指南](docs/deployment.md) · [Make 命令](docs/commands.md)。
-
 safe-devops 用于降低“开发 / 运维日常电脑失陷 → SSH / GitHub 凭据被盗 → 横向进入生产”的风险。它不依赖开发 / 运维日常电脑上的确认弹窗：服务器连接器执行受限诊断、已安装任务、经逐条审核的通用 Shell 命令和变更计划，并验证独立签名、目录范围、期限和次数。开发与运维人员通过终端输入命令，不持有生产 SSH 私钥。
 
 当前提供可运行的闭环及部署工具，**尚未经过独立安全审计，不应被视为已经验证的大规模生产 SaaS**。适合先在受控管理网络内试点。具体限制见 [安全边界](docs/architecture.md) 和 [验证记录](docs/validation.md)。本项目不对任何具体公司事故的经过作事实判断。

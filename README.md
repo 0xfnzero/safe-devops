@@ -39,8 +39,6 @@
     <a href="https://discord.gg/vuazbGkqQE">Discord</a>
 </p>
 
-Current version: **0.4.1**. [Downloads](https://github.com/0xfnzero/safe-devops/releases) · [Deployment](docs/deployment.md) · [Make commands](docs/commands.md).
-
 safe-devops is a **self-hosted DevSecOps platform for secure server access and operations approval**, built with Go, Next.js and Electron. It helps contain the impact of a compromised developer or operator workstation: production servers independently verify narrowly scoped, signed operations instead of trusting a personal workstation's SSH session.
 
 Use a familiar command interface for diagnostics and approved tasks. Automatically allow explicitly permitted low-risk operations, send other eligible commands to an AI reviewer, and hand uncertain or high-risk operations to independent human reviewers. Keep teams, projects, servers, approvals and audit records in one control plane.
