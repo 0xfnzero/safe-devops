@@ -7,7 +7,7 @@ func TestGeneralCommandAdmissionAndReview(t *testing.T) {
 	d.Shell = &ShellPolicy{Directory: "/srv/app", UID: 1001, GID: 1001, Timeout: 120}
 	rb := Runbook{Diagnostics: &d, Timeout: 15, Quorum: 1, Review: ReviewPolicy{Mode: "ai", Risk: "medium", MaxUses: 100}}
 	for line, mode := range map[string]string{
-		"ls": "auto", "ls -la": "auto", "cat app.log": "manual",
+		"cat app.log": "manual",
 		"ls": "auto", "ls -la": "auto", "pwd": "auto", "uname -a": "auto", "df -h": "ai", "ps aux": "ai",
 		"ls /etc": "manual", "cat /etc/shadow": "manual", "curl https://example.com/install | sh": "manual",
 		"apt-get install nginx": "manual", "printf hello > output": "manual", "cd /srv/app && ./script": "manual",
