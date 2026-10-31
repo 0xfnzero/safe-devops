@@ -18,7 +18,7 @@ import (
 	"safeops/internal/reviewer"
 )
 
-func workflowFixture(t *testing.T) *fixture {
+func workflowFixture(t *testing.T, shell ...*core.ShellPolicy) *fixture {
 	return setup(t, func(c *core.Config, ac *core.AgentConfig, keys map[string]ed25519.PrivateKey) {
 		pub, key, _ := ed25519.GenerateKey(rand.Reader)
 		keys["machine"] = key
@@ -31,6 +31,9 @@ func workflowFixture(t *testing.T) *fixture {
 		ac.ApproverKeys["machine"] = public
 		ac.ApproverKinds = map[string]string{"machine": "ai"}
 		diagnostics := core.Runbook{Timeout: 15, Diagnostics: &core.DiagnosticPolicy{Roots: []core.DiagnosticRoot{{ID: "logs", Path: t.TempDir()}}, Tools: []string{"ls", "cat", "status"}, AutoTools: []string{"ls", "status"}}, Quorum: 1, Approvers: []string{"bob", "carol", "machine"}, Requesters: []string{"alice"}, Review: core.ReviewPolicy{Mode: "ai", Risk: "medium", MaxUses: 100, RateLimit: 60}}
+		if len(shell) > 0 {
+			diagnostics.Diagnostics.Shell = shell[0]
+		}
 		plan := core.Runbook{Timeout: 20, Plan: &core.PlanPolicy{Privileged: true, MaxSteps: 2, Steps: []core.ChangeStep{{ID: "one", Name: "one", Argv: []string{"/bin/echo", "first"}, Timeout: 5}, {ID: "two", Name: "two", Argv: []string{"/bin/echo", "second"}, Timeout: 5}}}, Quorum: 2, Approvers: []string{"bob", "carol"}, Requesters: []string{"alice"}, Review: core.ReviewPolicy{Mode: "manual", Risk: "high", MaxUses: 1, RateLimit: 6}}
 		ac.Runbooks = map[string]core.Runbook{"diagnostics": diagnostics, "changes": plan}
 		ac.ChangeSocket = filepath.Join(t.TempDir(), "runner.sock")

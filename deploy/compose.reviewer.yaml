@@ -8,7 +8,7 @@ services:
     env_file: ["${SAFEOPS_CONFIG_DIR:?Set independent reviewer bundle}/reviewer/reviewer.env"]
     volumes: ["${SAFEOPS_CONFIG_DIR}/reviewer:/etc/safe-devops:ro"]
     read_only: true
-    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    tmpfs: ["/tmp:mode=1777,noexec,nosuid,size=16m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     restart: unless-stopped

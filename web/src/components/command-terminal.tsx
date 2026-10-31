@@ -1,5 +1,7 @@
 "use client";
 
+import { Select, SelectItem } from "@/components/select";
+
 import {
   useEffect,
   useLayoutEffect,
@@ -63,6 +65,7 @@ const words = {
     restore: "恢复记录",
     cleared: "已清屏。审计与执行记录仍保留。",
     welcome: "终端已就绪",
+    demoShell: "本机演示：命令在当前用户下执行，演示身份不能用于生产。",
     welcomeHint: "Enter 提交 · Tab 补全 · ↑ ↓ 历史 · Ctrl+R 搜索历史",
     history: "命令历史",
     historySearch: "搜索历史命令…",
@@ -104,7 +107,7 @@ const words = {
     plans: "变更计划",
     guideHint: "点击命令填入输入行，按 Enter 后才会提交。",
     shellHint:
-      "受控命令终端。支持目录内文件操作；Shell、管道与全屏交互程序暂不支持。",
+      "支持通用命令、管道与重定向。安全诊断快速放行，风险或未知操作转人工。每条命令独立执行；切换目录请用 cd /path && 命令。暂不支持全屏交互程序。",
     sessionHint:
       "逐条审核只批准当前命令；切换到已批准会话，可在其目录、工具和剩余预算内连续操作。",
     helpHint: "help 查看命令 · clear 清屏 · Ctrl+C 清除输入 / 撤销最近活动操作",
@@ -155,6 +158,8 @@ const words = {
     restore: "Restore history",
     cleared: "Screen cleared. Audit and execution records are preserved.",
     welcome: "Terminal ready",
+    demoShell:
+      "Local demo: commands run as the current OS user. Demo identities are not for production.",
     welcomeHint:
       "Enter Submit · Tab Complete · ↑ ↓ History · Ctrl+R Search history",
     history: "Command history",
@@ -197,7 +202,7 @@ const words = {
     plans: "Change plans",
     guideHint: "Click to insert. Only Enter or Run submits a command.",
     shellHint:
-      "Controlled command terminal. Files within approved roots are supported. Shell, pipes and fullscreen interactive programs are not yet supported.",
+      "General commands, pipes and redirects are supported when the server executor is configured. Safe diagnostics pass quickly; risky or unknown operations require humans. Each command starts fresh; use cd /path && command. Fullscreen interactive programs are not supported.",
     sessionHint:
       "Individual review authorizes one command. An approved session allows continuous work within its tools, directories and remaining budget.",
     helpHint:
@@ -245,6 +250,7 @@ function quote(s: string) {
     : "'" + s.replaceAll("'", "'\"'\"'") + "'";
 }
 function commandText(r: Request, op?: DiagnosticOperation) {
+  if (op?.tool === "shell") return op.command || "";
   if (op) {
     const file = op.resource ? quote(`${op.resource}:${op.path}`) : "";
     if (op.tool === "grep") return `grep ${quote(op.query || "")} ${file}`;
@@ -657,30 +663,32 @@ function ServerConsole({
           {profiles.length > 0 && (
             <label>
               <span>{c.scope}</span>
-              <select
+              <Select
                 aria-label={c.scope}
                 value={profile.id}
-                onChange={(e) => {
-                  setProfileID(e.target.value);
+                onValueChange={(value) => {
+                  setProfileID(value);
                   setSessionID("");
                 }}
               >
                 {profiles.map((p) => (
-                  <option key={p.id} value={p.id}>
+                  <SelectItem key={p.id} value={p.id}>
                     {p.name}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
+              </Select>
             </label>
           )}
           <label>
             <span>{c.mode}</span>
-            <select
+            <Select
               aria-label={c.mode}
-              value={sessionID}
-              onChange={(e) => setSessionID(e.target.value)}
+              value={sessionID || "individual"}
+              onValueChange={(value) =>
+                setSessionID(value === "individual" ? "" : value)
+              }
             >
-              <option value="">{c.individual}</option>
+              <SelectItem value="individual">{c.individual}</SelectItem>
               {sessions
                 .filter(
                   (r) =>
@@ -689,14 +697,14 @@ function ServerConsole({
                     ) || r.intent.id === sessionID,
                 )
                 .map((r) => (
-                  <option value={r.intent.id} key={r.intent.id}>
+                  <SelectItem value={r.intent.id} key={r.intent.id}>
                     {c.session} · {r.intent.id.slice(0, 6)} ·{" "}
                     {r.status === "ready"
                       ? `${r.intent.max_uses - r.used} ${c.uses}`
                       : statusLabel(r.status, c)}
-                  </option>
+                  </SelectItem>
                 ))}
-            </select>
+            </Select>
           </label>
         </div>
         <div className="console-tools">
@@ -793,6 +801,9 @@ function ServerConsole({
                 <span>{target.environment}</span>
               </div>
               <p>{c.welcomeHint}</p>
+              {profile.diagnostics?.shell?.demo && (
+                <p className="terminal-demo-note">{c.demoShell}</p>
+              )}
               {!entries.length && (
                 <div className="terminal-quickstart">
                   {commands
@@ -1357,7 +1368,7 @@ function TerminalPrompt({
           placeholder={c.hint}
           value={draft}
           readOnly={busy}
-          maxLength={2048}
+          maxLength={8192}
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}

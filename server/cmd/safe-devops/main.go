@@ -54,7 +54,7 @@ func load(path string, v any) error {
 }
 func run() error {
 	if len(os.Args) < 2 {
-		return errors.New("usage: safe-devops <init-compose|init-config|init-demo|broker|connector|change-runner|reviewer|approve|unlock-account|keygen|hash-runbook|check-config|backup|restore|policy-apply>")
+		return errors.New("usage: safe-devops <init-compose|init-config|configure-shell|init-demo|broker|connector|change-runner|reviewer|approve|unlock-account|keygen|hash-runbook|check-config|backup|restore|policy-apply>")
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -84,6 +84,21 @@ func run() error {
 		}
 		return initConfig(*dir, *workspace, *project, *origin, *approval, *database, *diagnosticRoot, *devicePublic)
 
+	case "configure-shell":
+		brokerPath := fs.String("broker-config", "", "existing Broker JSON")
+		connectorPath := fs.String("connector-config", "", "existing Connector JSON")
+		output := fs.String("out", "", "new output directory for coordinated policies")
+		profile := fs.String("profile", "diagnostics", "existing diagnostic profile ID")
+		directory := fs.String("directory", "", "initial command directory on target host (not a sandbox)")
+		uid := fs.Uint("uid", 0, "dedicated execution account numeric UID")
+		gid := fs.Uint("gid", 0, "dedicated execution account numeric GID")
+		timeout := fs.Int("timeout", 120, "command timeout, 1–600 seconds")
+		privileged := fs.Bool("privileged", false, "root commands; requires two independent human approvers")
+		fs.Parse(os.Args[2:])
+		if *output == "" || *uid > 4294967294 || *gid > 4294967294 {
+			return errors.New("new --out and valid UID/GID required")
+		}
+		return configureShell(*brokerPath, *connectorPath, *output, *profile, core.ShellPolicy{Directory: *directory, UID: uint32(*uid), GID: uint32(*gid), Timeout: *timeout, Privileged: *privileged})
 	case "init-demo":
 		dir := fs.String("dir", ".safeops/v4", "new demo directory")
 		fs.Parse(os.Args[2:])
@@ -643,7 +658,7 @@ func initDemo(dir string) error {
 		"host-uptime":     {Argv: []string{"/usr/bin/uptime"}, Timeout: 10, Approvers: []string{"bob", "carol"}, Quorum: 1, Requesters: []string{"alice"}, Review: core.ReviewPolicy{Mode: "manual", Risk: "medium", MaxUses: 5, RateLimit: 6}},
 		"protected-check": {Argv: []string{"/usr/bin/uname", "-s"}, Timeout: 10, Approvers: []string{"bob", "carol"}, Quorum: 2, Requesters: []string{"alice"}, Review: core.ReviewPolicy{Mode: "manual", Risk: "high", MaxUses: 1, RateLimit: 6}},
 	}
-	runbooks["diagnostics"] = core.Runbook{Timeout: 15, Approvers: []string{"bob", "carol", "ai-reviewer"}, Quorum: 1, Requesters: []string{"alice"}, Review: core.ReviewPolicy{Mode: "ai", Risk: "medium", MaxUses: 100, RateLimit: 30}, Diagnostics: &core.DiagnosticPolicy{Roots: []core.DiagnosticRoot{{ID: "logs", Path: filepath.Join(dir, "diagnostics")}}, Tools: []string{"ls", "cat", "tail", "grep", "status"}, AutoTools: []string{"ls", "status"}}}
+	runbooks["diagnostics"] = core.Runbook{Timeout: 15, Approvers: []string{"bob", "carol", "ai-reviewer"}, Quorum: 1, Requesters: []string{"alice"}, Review: core.ReviewPolicy{Mode: "ai", Risk: "medium", MaxUses: 100, RateLimit: 30}, Diagnostics: &core.DiagnosticPolicy{Shell: &core.ShellPolicy{Directory: filepath.Join(dir, "diagnostics"), UID: uint32(os.Geteuid()), GID: uint32(os.Getegid()), Timeout: 120, Demo: true}, Roots: []core.DiagnosticRoot{{ID: "logs", Path: filepath.Join(dir, "diagnostics")}}, Tools: []string{"ls", "cat", "tail", "grep", "status"}, AutoTools: []string{"ls", "status"}}}
 	runbooks["demo-change"] = core.Runbook{Timeout: 30, Approvers: []string{"bob", "carol"}, Quorum: 2, Requesters: []string{"alice"}, Review: core.ReviewPolicy{Mode: "manual", Risk: "high", MaxUses: 1, RateLimit: 6}, Plan: &core.PlanPolicy{MaxSteps: 3, Steps: []core.ChangeStep{{ID: "check", Name: "检查环境 / Check environment", Description: "Harmless demonstration", Argv: []string{"/usr/bin/uname", "-srm"}, Timeout: 10}, {ID: "verify", Name: "验证运行状态 / Verify runtime", Description: "Harmless demonstration, no service modification", Argv: []string{"/usr/bin/uptime"}, Timeout: 10}}}}
 	if e = os.Mkdir(filepath.Join(dir, "diagnostics"), 0700); e != nil {
 		return e
@@ -660,7 +675,7 @@ func initDemo(dir string) error {
 		{"list-directory", "列出演示目录", "固定 ls 路径，无自定义参数，无需逐次审批"},
 		{"disk-usage", "磁盘容量检查", "AI 优先审核，可转人工；一次授权最多执行 5 次"},
 		{"host-uptime", "运行时间检查", "人工授权窗口：同一任务最多执行 5 次"},
-		{"diagnostics", "排障终端 / Diagnostic terminal", "限定目录内连续排障；ls/status 规则放行，其余命令 AI 审核，可转人工"},
+		{"diagnostics", "排障终端 / Diagnostic terminal", "常用诊断快速放行；支持通用命令，未知与变更操作转人工审核"},
 		{"demo-change", "变更计划演示 / Change plan demo", "按选定顺序执行，双人批准；仅运行无害命令，不安装软件"},
 		{"protected-check", "高风险策略演示", "双人逐次审批；演示仅运行无害的 uname，不修改系统"},
 	} {

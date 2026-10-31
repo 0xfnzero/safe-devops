@@ -228,7 +228,7 @@ policy-apply 检查所有旧请求期限，未过期即拒绝；旧 Broker 进�
 4. 使用 `scripts/install.sh --component change-runner --binary ... --sha256 ... --config ...` 安装；模板 `safe-devops-change-runner.service` 创建 root:safe-devops-connector 的 0750 socket 目录，socket 为 0660。也可手工安装同等权限配置。先准备目标机 Connector 账户/组；预检查文件权限，测试无害计划后再开启真实变更。
 5. 保持 root runner 在宿主 systemd 下运行；控制面可继续使用 Compose。runner 为执行系统变更保留必要写权限，计划的程序与软件源本身必须受信任。包管理器 hook/script 仍有 root 影响范围，不能把 argv 白名单当作沙箱。
 
-runner 只监听 Unix socket，没有 TCP 监听、任意 Shell 或裸命令 API。进程崩溃后若留下 socket 文件，确认旧服务确实停止后由管理员清理该 socket 再重启；不要清空持久账本。取消、断联和超时会停止后续步骤并尽力杀死正在执行的进程组；已经完成的系统修改不可自动撤销。
+runner 只监听 Unix socket，没有 TCP 监听或裸命令 API。配置通用命令时，它接受经过独立验证的精确 Shell 授权；非 root 使用专用 UID/GID，root 需要双人签名，详见 [通用命令部署](terminal.md#在-linux-服务器启用)。进程崩溃后若留下 socket 文件，确认旧服务确实停止后由管理员清理该 socket 再重启；不要清空持久账本。取消、断联和超时会停止后续步骤并尽力杀死正在执行的进程组；已经完成的系统修改不可自动撤销。
 
 ## 已授权机器与每次请求身份核验
 

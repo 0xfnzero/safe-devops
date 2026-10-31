@@ -1,5 +1,7 @@
 "use client";
 
+import { Select, SelectItem } from "@/components/select";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Activity,
@@ -207,7 +209,7 @@ export default function Home() {
   }, [refresh, token]);
   useEffect(() => {
     const close = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && !e.defaultPrevented) {
         setSelected(null);
         setShowCreate(false);
       }
@@ -489,21 +491,21 @@ export default function Home() {
             </span>
             <AppearanceControls />
             {demo && (
-              <select
+              <Select
                 aria-label={t("switchIdentity")}
                 value={me.id}
                 disabled={busy}
-                onChange={(e) => {
-                  const u = demoUsers.find((u) => u.id === e.target.value);
+                onValueChange={(value) => {
+                  const u = demoUsers.find((u) => u.id === value);
                   if (u) void login(u.token);
                 }}
               >
                 {demoUsers.map((u) => (
-                  <option key={u.id} value={u.id}>
+                  <SelectItem key={u.id} value={u.id}>
                     {u.name.split(" · ")[0]}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
+              </Select>
             )}
             <span className="avatar">{me.id[0].toUpperCase()}</span>
             <button
@@ -919,18 +921,18 @@ export default function Home() {
             <>
               <div className="project-toolbar">
                 <label htmlFor="project-filter">{t("project")}</label>
-                <select
+                <Select
                   id="project-filter"
                   value={projectFilter}
-                  onChange={(e) => setProjectFilter(e.target.value)}
+                  onValueChange={(value) => setProjectFilter(value)}
                 >
-                  <option value="all">{t("allProjects")}</option>
+                  <SelectItem value="all">{t("allProjects")}</SelectItem>
                   {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
+                    <SelectItem key={p.id} value={p.id}>
                       {p.name}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
+                </Select>
                 <span>
                   {
                     targets.filter(
@@ -1456,14 +1458,12 @@ function CreateDialog({
           {projects.length > 0 && (
             <>
               <label htmlFor="project">{t("project")}</label>
-              <select
+              <Select
                 id="project"
                 value={project}
-                onChange={(e) => {
-                  setProject(e.target.value);
-                  const first = targets.find(
-                    (x) => x.project_id === e.target.value,
-                  );
+                onValueChange={(value) => {
+                  setProject(value);
+                  const first = targets.find((x) => x.project_id === value);
                   setTarget(first?.id || "");
                   setAction(first?.actions[0]?.id || "");
                   setMaxUses(1);
@@ -1473,22 +1473,21 @@ function CreateDialog({
                 {projects
                   .filter((p) => targets.some((x) => x.project_id === p.id))
                   .map((p) => (
-                    <option value={p.id} key={p.id}>
+                    <SelectItem value={p.id} key={p.id}>
                       {p.name}
-                    </option>
+                    </SelectItem>
                   ))}
-              </select>
+              </Select>
             </>
           )}
           <label htmlFor="target">{t("target")}</label>
-          <select
+          <Select
             id="target"
             value={target}
-            onChange={(e) => {
-              setTarget(e.target.value);
+            onValueChange={(value) => {
+              setTarget(value);
               setAction(
-                targets.find((x) => x.id === e.target.value)?.actions[0]?.id ||
-                  "",
+                targets.find((x) => x.id === value)?.actions[0]?.id || "",
               );
               setMaxUses(1);
               setSteps([]);
@@ -1498,28 +1497,28 @@ function CreateDialog({
             {targets
               .filter((x) => !project || x.project_id === project)
               .map((x) => (
-                <option value={x.id} key={x.id}>
+                <SelectItem value={x.id} key={x.id}>
                   {x.name} / {x.environment}
-                </option>
+                </SelectItem>
               ))}
-          </select>
+          </Select>
           <label htmlFor="action">{t("task")}</label>
-          <select
+          <Select
             id="action"
             value={action}
-            onChange={(e) => {
-              setAction(e.target.value);
+            onValueChange={(value) => {
+              setAction(value);
               setMaxUses(1);
               setSteps([]);
             }}
             required
           >
             {actions.map((a) => (
-              <option key={a.id} value={a.id}>
+              <SelectItem key={a.id} value={a.id}>
                 {a.name}
-              </option>
+              </SelectItem>
             ))}
-          </select>
+          </Select>
           {selected && (
             <div className="runbook-hint">
               <ShieldCheck size={19} />
@@ -1552,34 +1551,34 @@ function CreateDialog({
           <div className="form-grid">
             <div>
               <label htmlFor="max-uses">{t("maximumUses")}</label>
-              <select
+              <Select
                 id="max-uses"
-                value={maxUses}
-                onChange={(e) => setMaxUses(Number(e.target.value))}
+                value={String(maxUses)}
+                onValueChange={(value) => setMaxUses(Number(value))}
               >
                 {Array.from(
                   { length: selected?.review.max_uses || 1 },
                   (_, i) => (
-                    <option key={i + 1} value={i + 1}>
+                    <SelectItem key={i + 1} value={String(i + 1)}>
                       {i === 0 ? t("once") : `${i + 1} ${t("uses")}`}
-                    </option>
+                    </SelectItem>
                   ),
                 )}
-              </select>
+              </Select>
             </div>
             <div>
               <label htmlFor="ttl">{t("expiry")}</label>
-              <select
+              <Select
                 id="ttl"
-                value={ttl}
-                onChange={(e) => setTTL(Number(e.target.value))}
+                value={String(ttl)}
+                onValueChange={(value) => setTTL(Number(value))}
               >
                 {[300, 600, 900].map((seconds) => (
-                  <option value={seconds} key={seconds}>
+                  <SelectItem value={String(seconds)} key={seconds}>
                     {seconds / 60} {t("minutes")}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
           <div className="form-actions">

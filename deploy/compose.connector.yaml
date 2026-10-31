@@ -9,7 +9,7 @@ services:
       - ${SAFEOPS_CONFIG_DIR:?Set the bundle parent directory}/connector:/etc/safe-devops:ro
       - ${SAFEOPS_CONFIG_DIR}/data/connector:/var/lib/safe-devops-connector
     read_only: true
-    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    tmpfs: ["/tmp:mode=1777,noexec,nosuid,size=16m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     restart: unless-stopped

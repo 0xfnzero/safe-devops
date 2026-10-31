@@ -16,7 +16,7 @@ services:
       - ${SAFEOPS_CONFIG_DIR}/backups:/backups
     ports: ["${SAFEOPS_BIND_ADDRESS:-127.0.0.1}:${SAFEOPS_BROKER_PORT:-8443}:8443"]
     read_only: true
-    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    tmpfs: ["/tmp:mode=1777,noexec,nosuid,size=16m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     restart: unless-stopped
@@ -41,7 +41,7 @@ services:
     depends_on:
       broker: {condition: service_healthy}
     read_only: true
-    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    tmpfs: ["/tmp:mode=1777,noexec,nosuid,size=16m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     restart: unless-stopped
@@ -61,7 +61,7 @@ services:
       web: {condition: service_healthy}
     read_only: true
     environment: {XDG_DATA_HOME: /tmp/data, XDG_CONFIG_HOME: /tmp/config}
-    tmpfs: [/tmp:mode=1777,noexec,nosuid,size=16m]
+    tmpfs: ["/tmp:mode=1777,noexec,nosuid,size=16m"]
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     restart: unless-stopped

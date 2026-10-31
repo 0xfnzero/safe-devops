@@ -30,14 +30,22 @@ func (b *Broker) terminalCommand(w http.ResponseWriter, r *http.Request, p core.
 	}
 	words, err := core.Words(in.Command)
 	if err != nil {
-		return nil, bad(400, err.Error())
+		words = []string{""}
 	}
 	body := map[string]any{"target": in.Target, "action": in.Profile, "max_uses": 1, "ttl_seconds": 900, "reason": in.Reason}
-	if in.Session != "" {
+	// Only the built-in diagnostic subset may consume a session grant.
+	// Other commands always create an independent exact approval request.
+	scopedError := err
+	if profile.Diagnostics != nil {
+		_, scopedError = profile.Diagnostics.Parse(in.Command)
+	} else {
+		scopedError = bad(400, "diagnostic scope required")
+	}
+	if in.Session != "" && scopedError == nil {
 		if profile.Diagnostics == nil {
 			return nil, bad(400, "session requires diagnostic profile")
 		}
-		operation, err := profile.Diagnostics.Parse(in.Command)
+		operation, err := profile.Diagnostics.Admit(in.Command)
 		if err != nil {
 			return nil, bad(400, err.Error())
 		}
@@ -85,7 +93,7 @@ func (b *Broker) terminalCommand(w http.ResponseWriter, r *http.Request, p core.
 		if profile.Diagnostics == nil {
 			return nil, bad(400, "select a diagnostic profile")
 		}
-		operation, err := profile.Diagnostics.Parse(in.Command)
+		operation, err := profile.Diagnostics.Admit(in.Command)
 		if err != nil {
 			return nil, bad(400, err.Error())
 		}

@@ -127,6 +127,9 @@ func Verify(c core.AgentConfig, e core.Envelope, now time.Time) (core.Intent, co
 		if l.Operation == nil || rb.Diagnostics.ValidateOperation(*l.Operation) != nil {
 			return i, empty, errors.New("invalid session operation")
 		}
+		if i.Kind == "session" && l.Operation.Tool == "shell" {
+			return i, empty, errors.New("session grants never authorize shell operations")
+		}
 		if i.Kind == "command" && string(core.JSON(i.Operation)) != string(core.JSON(l.Operation)) {
 			return i, empty, errors.New("command differs from approved intent")
 		}
@@ -171,11 +174,14 @@ func (o *cappedOutput) String() string {
 	return s
 }
 func Execute(ctx context.Context, rb core.Runbook) (string, int) {
+	return executeInDirectory(ctx, rb, "/")
+}
+func executeInDirectory(ctx context.Context, rb core.Runbook, directory string) (string, int) {
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(rb.Timeout)*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, rb.Argv[0], rb.Argv[1:]...)
 	cmd.Env = []string{"PATH=/usr/bin:/bin", "LANG=C", "LC_ALL=C", "HOME=/nonexistent"}
-	cmd.Dir = "/"
+	cmd.Dir = directory
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error {
 		if cmd.Process == nil {
@@ -242,8 +248,8 @@ func runVerified(ctx context.Context, client *http.Client, c core.AgentConfig, l
 	if e != nil {
 		return "", -1, e
 	}
-	if privileged && (rb.Plan == nil || !rb.Plan.Privileged || rb.Quorum < 2) {
-		return "", -1, errors.New("runner accepts privileged two-human plans only")
+	if privileged && (!runnerPolicy(rb) || (rb.Diagnostics != nil && (i.Kind != "command" || i.Operation == nil || i.Operation.Tool != "shell"))) {
+		return "", -1, errors.New("runner accepts exact reviewed shell commands or privileged two-human plans only")
 	}
 	input := map[string]any{"request_id": i.ID, "lease_id": env.Lease.ID}
 	active := func(ctx context.Context) bool {
@@ -284,7 +290,9 @@ func runVerified(ctx context.Context, client *http.Client, c core.AgentConfig, l
 	}()
 	var output string
 	var code int
-	if privileged {
+	if privileged && rb.Diagnostics != nil {
+		output, code = executeShell(runCtx, *rb.Diagnostics.Shell, i.Operation.Command, false)
+	} else if privileged {
 		output, code = ExecutePlan(runCtx, i.Plan)
 	} else {
 		output, code = ExecuteWorkflow(runCtx, c, env, i, rb)

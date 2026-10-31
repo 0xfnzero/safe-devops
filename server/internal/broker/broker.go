@@ -377,7 +377,7 @@ func (b *Broker) agentRoute(w http.ResponseWriter, r *http.Request, a core.Agent
 				req.FinishedAt = 0
 				req.AgentID = a.ID
 				req.LeaseID = core.ID()
-				req.LeaseExpires = min(req.Intent.ExpiresAt, b.Now().Unix()+int64(action.Timeout)+5)
+				req.LeaseExpires = min(req.Intent.ExpiresAt, b.Now().Unix()+int64(action.RunbookSpec().ExecutionTimeout(req.Intent))+5)
 				lease := core.Lease{Version: 2, Use: req.Used, ID: req.LeaseID, AgentID: a.ID, Payload: req.Payload, Approvals: req.Approvals, ExpiresAt: req.LeaseExpires}
 				if req.Intent.Version == 4 {
 					lease.Version = 3

@@ -302,6 +302,11 @@ export function WorkflowDetails({ request: r }: { request: Request }) {
         <section className="reason">
           <h4>{c.exact}</h4>
           <pre>{operationLabel(r.intent.operation)}</pre>
+          {r.intent.operation.tool === "shell" && r.intent.scope?.shell && (
+            <pre>{`/bin/sh · UID ${r.intent.scope.shell.uid} · GID ${r.intent.scope.shell.gid}
+${r.intent.scope.shell.directory}
+${r.intent.scope.shell.timeout_seconds}s · ${r.intent.scope.shell.privileged ? "ROOT" : "UNPRIVILEGED"}`}</pre>
+          )}
         </section>
       )}
       {r.intent.plan && (

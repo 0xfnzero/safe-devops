@@ -18,11 +18,13 @@ type DiagnosticRoot struct {
 	Path string `json:"path"`
 }
 type DiagnosticPolicy struct {
+	Shell     *ShellPolicy     `json:"shell,omitempty"`
 	Roots     []DiagnosticRoot `json:"roots"`
 	Tools     []string         `json:"tools"`
 	AutoTools []string         `json:"auto_tools,omitempty"`
 }
 type DiagnosticOperation struct {
+	Command  string `json:"command,omitempty"`
 	Tool     string `json:"tool"`
 	Resource string `json:"resource,omitempty"`
 	Path     string `json:"path,omitempty"`
@@ -69,6 +71,11 @@ func safeText(s string, max int) bool {
 	return len(s) <= max && utf8.ValidString(s) && !strings.ContainsFunc(s, func(r rune) bool { return unicode.IsControl(r) })
 }
 func (d DiagnosticPolicy) Validate() error {
+	if d.Shell != nil {
+		if err := d.Shell.Validate(); err != nil {
+			return err
+		}
+	}
 	if len(d.Roots) > 8 || len(d.Tools) == 0 || len(d.Tools) > 5 {
 		return errors.New("diagnostic profile must bound tools and roots")
 	}
@@ -97,6 +104,15 @@ func (d DiagnosticPolicy) Validate() error {
 	return nil
 }
 func (d DiagnosticPolicy) ValidateOperation(o DiagnosticOperation) error {
+	if o.Tool == "shell" {
+		if d.Validate() != nil || d.Shell == nil || strings.TrimSpace(o.Command) == "" || !safeText(o.Command, 8192) || o.Resource != "" || o.Path != "" || o.Query != "" || o.Lines != 0 {
+			return errors.New("invalid exact shell command")
+		}
+		return nil
+	}
+	if o.Command != "" {
+		return errors.New("shell text is only valid for exact shell operations")
+	}
 	if d.Validate() != nil || !slices.Contains(d.Tools, o.Tool) {
 		return errors.New("tool outside approved session scope")
 	}
@@ -147,6 +163,9 @@ func (rb Runbook) ValidateSpec(catalog bool) error {
 	case "session":
 		if len(rb.Argv) != 0 || rb.Timeout < 1 || rb.Timeout > 30 || p.Mode == "auto" || p.Risk == "high" {
 			return errors.New("sessions require bounded built-in tools and human/AI review")
+		}
+		if rb.Diagnostics.Shell != nil && rb.Diagnostics.Shell.Privileged && rb.Quorum < 2 {
+			return errors.New("privileged shell requires two independent humans")
 		}
 		return rb.Diagnostics.Validate()
 	case "plan":
@@ -248,6 +267,9 @@ func OperationLabel(o *DiagnosticOperation) string {
 	if o == nil {
 		return ""
 	}
+	if o.Tool == "shell" {
+		return o.Command
+	}
 	if o.Tool == "status" {
 		return "status"
 	}
@@ -264,6 +286,24 @@ func OperationLabel(o *DiagnosticOperation) string {
 // Only locally pinned diagnostic tools can take the rule fast path.
 func (rb Runbook) PolicyFor(i Intent) ReviewPolicy {
 	p := rb.Review.Effective()
+	if rb.Diagnostics != nil && rb.Diagnostics.Shell != nil && i.Kind == "command" && i.Operation != nil && i.Operation.Tool == "shell" {
+		mode := ShellReview(i.Operation.Command)
+		if rb.ValidateIntent(i) != nil || rb.Diagnostics.Shell.Privileged {
+			mode = "manual"
+		}
+		// An administrator's manual policy can never be weakened to AI approval.
+		if mode == "ai" && p.Mode != "ai" {
+			mode = "manual"
+		}
+		risk := "medium"
+		if mode == "auto" {
+			risk = "low"
+		}
+		if mode == "manual" {
+			risk = "high"
+		}
+		return ReviewPolicy{Mode: mode, Risk: risk, MaxUses: 1, RateLimit: p.RateLimit}
+	}
 	if rb.Diagnostics != nil && i.Kind == "command" && i.Operation != nil && rb.ValidateIntent(i) == nil && slices.Contains(rb.Diagnostics.AutoTools, i.Operation.Tool) {
 		return ReviewPolicy{Mode: "auto", Risk: "low", MaxUses: 1, RateLimit: p.RateLimit}
 	}

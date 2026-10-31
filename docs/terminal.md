@@ -31,13 +31,13 @@ plan demo-change check verify
 
 草稿与历史搜索状态只在当前登录页面内保存；关闭标签、退出或刷新会清除本地草稿。详情抽屉内的简化会话输入仍保留 ↑/↓ 历史、Ctrl+L 清空输入，日常操作建议使用主终端。
 
-服务器解析命令，不使用 Shell：不支持管道、重定向、命令替换、后台任务、sudo、任意可执行文件，也不提供 vim/top 等全屏 PTY。这是受控命令终端，**不是任意 Shell 的透明代理**。未知命令不会因为 AI 认为安全而获得执行能力；管理员应添加需要的固定任务或受限变更步骤。
+服务器先识别内置诊断；无法匹配时进入**通用命令审核通道**，支持 Shell、管道、重定向、命令替换和任意已安装程序。未知命令不会直接被命令白名单拒绝，而是转人工审核。每条命令以 `/bin/sh -c` 独立运行，不保持上一条的 `cd` 或变量；使用 `cd /srv/app && 命令`。暂不提供 stdin 交互、vim/top 全屏 PTY 或实时输出流，输出在执行结束后返回。
 
 `ls/status` 可由本地 `auto_tools` 明确允许后直通，其余命令单独生成不可变 Intent v4，AI/人工签署精确操作。AI 不能扩大目录、工具或特权。自动路径仍限流、签名、计数并记录输出。
 
 ## 连续排障会话
 
-在终端点击“申请授权”，会预选当前服务器和排障范围；设置 5/10/15 分钟、最多 100 次（不超过管理员上限，初始值为 20 次或更低的策略上限），填写目的并提交。批准后进入 ready，**不会自动执行命令**。在主终端“授权方式”中显式选择已批准会话，即可在同一提示符连续输入命令；也可使用详情中的简化终端。在预先批准的整个目录/工具范围内逐次验证，不再每条审批。已选会话失效、耗尽或正在执行时停止提交，不会自动切换到逐条审核。
+在终端点击“申请授权”，会预选当前服务器和排障范围；设置 5/10/15 分钟、最多 100 次（不超过管理员上限，初始值为 20 次或更低的策略上限），填写目的并提交。批准后进入 ready，**不会自动执行命令**。在主终端“授权方式”中显式选择已批准会话，即可在同一提示符连续输入命令；也可使用详情中的简化终端。在预先批准的整个目录/工具范围内逐次验证，不再每条审批。已选会话失效、耗尽或正在执行时停止提交。会话可用时输入通用 Shell 命令会创建新的单次审批，不消费或借用会话授权。
 
 一次会话授权意味着被盗用的申请身份也能使用其剩余范围、期限与次数；需要每条独立 AI 评估时使用默认逐命令终端。会话命令仍进入行为巡检，可触发账户锁定。读取不存在的日志不会关闭会话，但仍消耗一次预算；撤销、过期或次数用尽不可复用。
 
@@ -67,3 +67,38 @@ npm run dist      # 本平台分发包；macOS dmg/zip、Windows NSIS、Linux Ap
 生产客户端输入团队 **Web 控制台 HTTPS 地址**，不是 Broker 地址。记住控制台域名；设备私钥通过操作系统密钥环加密保存，不持久化登录 token 或人工审核私钥。生产要求先登记设备公钥，每次请求独立签名，见 [设备准入](device-access.md)。需在操作系统信任公司的 TLS CA，不允许跳过证书校验。远程窗口使用 sandbox/contextIsolation，禁止 Node、preload、webview、权限请求、下载、新窗口和跨域导航/网络请求；启动器只有固定的 settings/connect IPC。登录仍在 Web 页面内存中。
 
 当前打包脚本默认不自动调用开发机的签名身份。对外发行前须在受控发布环境配置代码签名与 macOS notarization，并验证各目标操作系统。已提供跨平台打包配置，不代表 Windows/Linux 安装包已经在本机实际测试。没有自动更新通道。
+
+
+## 通用命令：规则、AI 与人工的边界
+
+- 已配置目录内的内置 `ls/status` 保留原规则。通用通道的 `pwd`、`whoami`、`uname`、`uname -a/-s/-srm` 仅在完整文本精确匹配且非 root 时可快速放行。
+- `id`、`uptime`、`df -h`、`free -h`、`ps aux`、`ps -ef` 只有管理员启用 AI 审核时才能由 AI 批准；人工策略不会被自动改成 AI。
+- 其他文本全部可以提交，包括 `apt-get install nginx`、`curl ... | sh`、文件写入和自定义脚本，但默认标为高风险并转独立人工。这里限制的是**自动批准权限**，不是可提交命令集合。
+- root 策略下任何通用命令都要两名独立人工签名，不能让 AI 代签。普通账户不能用 `sudo` 或 setuid 文件提升权限；需要系统级安装时选择管理员配置的 root 策略。
+- 请求签名覆盖原始命令、起始目录、UID/GID、超时、租户、项目、目标和有效期。每次只执行一次；更改文本、目录、账户或者重复使用都要重新申请。
+- 审核 UI 显示“已转人工”、原始命令及执行账户。执行结果进入原来的审计和 AI 行为巡检，异常行为仍可锁定账户。
+
+### 在 Linux 服务器启用
+
+控制面仍可用 Docker Compose + SQLite/PostgreSQL。通用命令执行器安装在目标 Linux 主机上；控制面容器不挂载 Docker socket、不获得目标主机 root。目标需 `/bin/sh` 和 util-linux 的 `/usr/bin/setpriv`。
+
+1. 在目标机创建专用执行用户（例如 `safe-devops-exec`，禁止交互登录），只授予需要管理的业务文件权限。不要复用 Connector/Reviewer 用户；不要加入 Docker、sudo 或其他管理组。准备初始目录，例如 `/srv/app`。
+2. 以现有已安装的 `diagnostics` 配置生成协调更新。初次初始化应传入 `--diagnostic-root /srv/app/logs`。UID/GID 使用目标机 `id -u safe-devops-exec` / `id -g safe-devops-exec` 的实际值：
+
+   ```bash
+   ./bin/safe-devops configure-shell \
+     --broker-config /secure/current/broker.json \
+     --connector-config /secure/current/connector.json \
+     --out /secure/reviewed-shell \
+     --directory /srv/app --uid 1001 --gid 1001 --timeout 120
+   ```
+
+   只生成新目录下 `broker.json`、`connector.json`、`change-runner.json`，不修改运行配置或密钥。若要 root 通道，先为这个 profile 配好至少两名独立人工及 `quorum >= 2`，再使用 `--uid 0 --gid 0 --privileged`。
+3. 将文件分发至各自机器。执行器复用该目标的 mTLS 身份与公钥，但配置/账本由 root 保管。通过 `scripts/install.sh --component change-runner`（或 `make install COMPONENT=change-runner ...`）安装已有 systemd 服务。Connector 仍以低权限账户运行；Unix socket 为 root 所有、Connector 组可访问。
+4. 新策略摘要会变化：先停 Broker 并备份，再按部署指南运行 `policy-apply`；它撤销旧活动授权。将同一 profile 摘要更新到独立 AI Reviewer 的规则后重新启动各服务。未更新的 AI 规则只能转人工，不能放宽权限。现有部署不会被自动启用通用命令。
+
+独立执行器再次验证原始授权信封、本地配置、人工/AI 签名、租约、账号状态和防重放账本。非 root 命令丢弃附加组和所有 Linux capabilities，并开启 `no_new_privs`；凭据不经环境传入。**起始目录不是隔离目录**，实际文件权限由该 UID 控制；执行用户不能拥有 Connector 的凭据文件。命令有超时、进程组取消和输出上限，已发生的写入无法回滚，主动脱离进程组的子进程也不保证能被取消。需要强资源/网络隔离时，执行目标应置于专用 VM/container 中。
+
+批准 root 命令或下载的程序，意味着信任其完整行为：它可能修改系统、持久化或读取机密。精确签名保证命令未被替换，不保证脚本、包仓库、符号链接和依赖在批准后未变；敏感变更应使用固定摘要的工件与双人复核。
+
+新建 `init-demo` 环境支持同样的路由，但通用命令会以启动者的本机非 root 账户执行，**不提供生产执行账户隔离**，演示身份与审核密钥也不是安全边界。生产配置拒绝 `shell.demo=true`。旧 `.safeops/v4` 不会被覆盖；使用新的 `DEV_DIR` 启动新版演示。

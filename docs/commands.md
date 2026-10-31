@@ -207,3 +207,16 @@ sudo make service-logs COMPONENT=connector
 Broker / Reviewer 还需 `ENV_FILE=/secure/broker.env` 或 reviewer.env（SQLite Broker 可为空文件）。Web 使用 `COMPONENT=web WEB_BUNDLE=/secure/web包展开目录 ENV_FILE=/secure/web.env`。已有配置升级传 `UPGRADE=1`，旧配置保存为 `.previous.时间戳`；证书等已准备完毕时可传 `START=1` 启用并重启。普通 `install` 默认只安装，不自动启动。
 
 无需源码的服务器可直接使用 CLI 包内 `scripts/install.sh --help`，参数与上述 Make 包装一致。systemd 服务单元负责运行前配置检查，所有目标主机仍需核验固定程序路径、文件权限和网络连通。
+
+
+### 启用通用命令审核
+
+`make shell-config` 只生成协调配置，不修改运行中的权限。必须给定现有 Broker/Connector 配置、目标 OS 用户 ID 与新的输出目录：
+
+```bash
+make shell-config BROKER_CONFIG=/secure/broker.json \
+  CONNECTOR_CONFIG=/secure/connector.json SHELL_OUTPUT=/secure/shell-update \
+  SHELL_DIRECTORY=/srv/app SHELL_UID=1001 SHELL_GID=1001
+```
+
+可选 `SHELL_TIMEOUT=120`、`SHELL_PROFILE=diagnostics`。root 策略需预先配置双人审批，并显式使用 `SHELL_UID=0 SHELL_GID=0 SHELL_PRIVILEGED=1`。安装执行器、策略迁移与权限边界见 [终端说明](terminal.md#在-linux-服务器启用)。

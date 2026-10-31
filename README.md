@@ -44,7 +44,7 @@ flowchart TB
     Connector["Server Connector<br/>local policy + signature verification"]
     Ledger[("Persistent replay ledger")]
     Tasks["Scoped diagnostics / installed tasks"]
-    Runner["Optional privileged change runner<br/>Unix socket + two human signatures"]
+    Runner["Reviewed shell / change runner<br/>isolated OS account; root needs two humans"]
     Connector --> Ledger
     Connector --> Tasks
     Connector --> Runner
@@ -70,7 +70,7 @@ make setup            # Install Go/Web dependencies and build the local CLI
 make dev              # Broker, two Connectors, simulated Reviewer and Next.js
 ```
 
-Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Alice requests operations, Bob and Carol review them, and Dave is isolated to a separate project. The demo stores disposable state in `.safeops/v4`; its AI reviewer is explicitly simulated and does not call a model service. Ctrl+C stops the services started by that command.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Alice requests operations, Bob and Carol review them, and Dave is isolated to a separate project. The demo stores disposable state in `.safeops/v4`; its AI reviewer is explicitly simulated and does not call a model service. Newly created demos include a shell running as your current non-root OS user after the required review; use a disposable development machine. Older demo configuration is preserved and must be recreated in a new `DEV_DIR` to enable this capability. Ctrl+C stops the services started by that command.
 
 To use the Electron client:
 
@@ -101,7 +101,7 @@ plan demo-change check verify
 
 Use individual review for each command, or explicitly select a short-lived approved diagnostic session with a bounded directory, tool set and execution budget. Session operations still validate identity and machine, consume a use, check revocation and enter audit/risk review. Approval does not execute a diagnostic command by itself.
 
-**This is a controlled command terminal, not an arbitrary shell or full-screen PTY.** Shell pipelines, redirection, command substitution, arbitrary executables and `vim`/`top` are not supported. Installing services requires administrator-defined change-plan steps; privileged changes use an independent runner and at least two human signatures.
+**General shell commands can be submitted without a fixed command template**, including pipelines, redirection and installation commands, when the reviewed shell executor is configured. A small exact diagnostic set may pass rules or AI review; unknown, mutating and complex shell commands require independent human approval. Every shell grant is single-use and binds the command, working directory, OS account, server and expiry. Root execution requires two humans. The directory is a starting location, not a sandbox; each command starts fresh (`cd /path && command`). Full-screen interactive programs such as `vim`/`top` are not yet supported.
 
 Details: [terminal and desktop](docs/terminal.md), [AI review and guardrails](docs/ai-review.md), [account risk controls](docs/account-risk.md), [device enrollment](docs/device-access.md).
 

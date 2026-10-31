@@ -9,6 +9,11 @@ import shutil
 import subprocess
 import sys
 
+# Keep command output readable on Windows consoles with legacy code pages.
+for stream in (sys.stdout, sys.stderr):
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parents[1]
 
 

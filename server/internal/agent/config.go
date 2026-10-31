@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"safeops/internal/core"
+	"syscall"
 )
 
 func ValidateConfig(c core.AgentConfig, demo bool) error {
@@ -29,6 +30,24 @@ func ValidateConfig(c core.AgentConfig, demo bool) error {
 	for _, rb := range c.Runbooks {
 		if rb.ValidateSpec(false) != nil || len(rb.Requesters) == 0 {
 			return errors.New("invalid Connector runbook")
+		}
+		if rb.Diagnostics != nil && rb.Diagnostics.Shell != nil {
+			if !demo && !rb.Diagnostics.Shell.Privileged {
+				info, err := os.Stat(c.TLSKey)
+				if err != nil {
+					return err
+				}
+				stat, ok := info.Sys().(*syscall.Stat_t)
+				if !ok || stat.Uid == rb.Diagnostics.Shell.UID {
+					return errors.New("shell execution account must not own Connector credentials")
+				}
+			}
+			if rb.Diagnostics.Shell.Demo && !demo {
+				return errors.New("demo shell is forbidden in production")
+			}
+			if !rb.Diagnostics.Shell.Demo && !filepath.IsAbs(c.ChangeSocket) {
+				return errors.New("general commands require a separate execution service and absolute change_socket")
+			}
 		}
 		if rb.Plan != nil && rb.Plan.Privileged && !filepath.IsAbs(c.ChangeSocket) {
 			return errors.New("privileged plans require an absolute change_socket")

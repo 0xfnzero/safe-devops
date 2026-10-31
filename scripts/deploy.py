@@ -154,9 +154,18 @@ def systemd(action, dry_run=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["init", "check", "up", "status", "logs", "health", "restart", "stop", "down", "backup", "restore", "upgrade", "policy-apply", "install", "service-start", "service-stop", "service-status", "service-logs"])
+    parser.add_argument("action", choices=["shell-config", "init", "check", "up", "status", "logs", "health", "restart", "stop", "down", "backup", "restore", "upgrade", "policy-apply", "install", "service-start", "service-stop", "service-status", "service-logs"])
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
+    if args.action == "shell-config":
+        argv = [binary(), "configure-shell", "--broker-config", required("BROKER_CONFIG"),
+                "--connector-config", required("CONNECTOR_CONFIG"), "--out", required("SHELL_OUTPUT"),
+                "--directory", required("SHELL_DIRECTORY"), "--uid", required("SHELL_UID"),
+                "--gid", required("SHELL_GID"), "--timeout", number("SHELL_TIMEOUT", "120"),
+                "--profile", env("SHELL_PROFILE", "diagnostics")]
+        if flag("SHELL_PRIVILEGED"):
+            argv.append("--privileged")
+        return run(argv)
     if args.action == "init":
         return initialize()
     if args.action == "install" or args.action.startswith("service-"):

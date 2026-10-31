@@ -57,7 +57,7 @@ func (b *Broker) createRequest(w http.ResponseWriter, r *http.Request, p core.Pr
 		in.Reason = "Routine diagnostic under administrator preauthorization"
 	}
 	if in.Reason == "" && in.Operation != nil {
-		in.Reason = "Terminal diagnostic within administrator-installed scope"
+		in.Reason = "Terminal command submitted for server policy review"
 	}
 	if len(in.Reason) < 8 || len(in.Reason) > 1000 || strings.ContainsAny(in.Reason, "\x00\x1b") {
 		return nil, bad(400, "reason must contain 8–1000 bytes, without control escapes")
@@ -112,10 +112,17 @@ func (b *Broker) createRequest(w http.ResponseWriter, r *http.Request, p core.Pr
 	if a.Diagnostics == nil && in.Operation != nil {
 		return nil, bad(400, "operation requires diagnostic scope")
 	}
+	if i.Operation != nil && i.Operation.Tool == "shell" && in.TTL < rb.ExecutionTimeout(i)+5 {
+		return nil, bad(400, "TTL must cover command timeout plus 5 seconds")
+	}
 	policy = rb.PolicyFor(i)
 	req := core.Request{Operation: i.Operation, Intent: i, Payload: core.Encode(i), Fingerprint: core.Hash(core.JSON(i)), Status: "pending", Approvals: []core.Approval{}, Quorum: rb.QuorumFor(i), Review: policy, Queued: i.Kind != "session", Assessments: []core.Assessment{}, Executions: []core.Execution{}}
 	if b.Config.DevicePolicy != nil && b.Config.DevicePolicy.Required {
 		req.DeviceID = r.Header.Get("X-Safe-Devops-Device")
+	}
+	if i.Operation != nil && i.Operation.Tool == "shell" && policy.Mode == "manual" {
+		req.NeedsHuman = true
+		req.Assessments = append(req.Assessments, core.Assessment{Reviewer: "server-policy", Decision: "escalate", Reason: "General shell or privileged operation requires independent human review; automatic approval cannot establish safety.", Model: "deterministic-policy", At: now.Unix()})
 	}
 	if policy.Mode == "auto" {
 		req.Status = "approved"
@@ -309,6 +316,9 @@ func (b *Broker) requestAction(w http.ResponseWriter, r *http.Request, p core.Pr
 			}
 			if req.Status != "ready" || req.Used >= core.Uses(req.Intent) {
 				return bad(409, "session unavailable or exhausted")
+			}
+			if operation.Tool == "shell" {
+				return bad(400, "shell commands require a new exact approval, not a session grant")
 			}
 			if e := a.Diagnostics.ValidateOperation(operation); e != nil {
 				return bad(400, e.Error())

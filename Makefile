@@ -17,12 +17,13 @@ UPGRADE ?= 0
 export VERSION OS ARCH DESKTOP_OS DESKTOP_ARCH CONFIG_DIR DATABASE WAIT_TIMEOUT LOG_TAIL
 export WORKSPACE PROJECT BROKER_URL WEB_URL APPROVER_PUBLIC_KEY_FILE DEVICE_PUBLIC_KEY_FILE DIAGNOSTIC_ROOT
 export SERVICE BACKUP_FILE COMPONENT BINARY SHA256 CONFIG ENV_FILE WEB_BUNDLE DRY_RUN START UPGRADE
+export BROKER_CONFIG CONNECTOR_CONFIG SHELL_OUTPUT SHELL_DIRECTORY SHELL_UID SHELL_GID SHELL_TIMEOUT SHELL_PROFILE SHELL_PRIVILEGED
 export SAFE_DEVOPS_BIN WEB_PORT BROKER_PORT DEV_DIR
 ifeq ($(origin VERSION),command line)
 export SAFEOPS_VERSION := $(VERSION)
 endif
 
-.PHONY: help setup setup-desktop doctor dev demo dev-backend dev-web dev-desktop desktop build build-all build-web test test-web test-desktop test-scripts check smoke smoke-tls desktop-check package-server package-servers package-web package-source package-desktop package-macos package-windows package-linux release docker-build deploy-init deploy-check deploy-up deploy-status deploy-logs deploy-health deploy-restart deploy-stop deploy-down deploy-backup deploy-restore deploy-upgrade deploy-policy-apply install install-check service-start service-stop service-status service-logs
+.PHONY: shell-config help setup setup-desktop doctor dev demo dev-backend dev-web dev-desktop desktop build build-all build-web test test-web test-desktop test-scripts check smoke smoke-tls desktop-check package-server package-servers package-web package-source package-desktop package-macos package-windows package-linux release docker-build deploy-init deploy-check deploy-up deploy-status deploy-logs deploy-health deploy-restart deploy-stop deploy-down deploy-backup deploy-restore deploy-upgrade deploy-policy-apply install install-check service-start service-stop service-status service-logs
 
 ##@ 入门与开发
 help: ## 显示所有命令和说明（直接 make 等同于 make help）
@@ -161,6 +162,9 @@ deploy-upgrade: ## 预构建、校验、备份所有团队，再更新并等待�
 
 deploy-policy-apply: ## 停 Broker 后迁移策略指纹；WORKSPACE=团队，旧授权须过期
 	@$(PYTHON) scripts/deploy.py policy-apply
+
+shell-config: ## 生成通用命令审核配置；执行账户/目录参数见 docs/terminal.md
+	@$(PYTHON) scripts/deploy.py shell-config
 
 ##@ Linux systemd 安装与维护
 install: ## 安装组件；COMPONENT/BINARY/SHA256/CONFIG 等参数见文档

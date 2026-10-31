@@ -16,6 +16,15 @@ import (
 
 func ExecuteWorkflow(ctx context.Context, c core.AgentConfig, env core.Envelope, i core.Intent, rb core.Runbook) (string, int) {
 	if rb.Diagnostics != nil {
+		if i.Operation != nil && i.Operation.Tool == "shell" {
+			if rb.Diagnostics.Shell == nil {
+				return "shell policy unavailable", -1
+			}
+			if rb.Diagnostics.Shell.Demo {
+				return executeShell(ctx, *rb.Diagnostics.Shell, i.Operation.Command, c.DemoToken != "")
+			}
+			return callChangeRunner(ctx, c.ChangeSocket, env)
+		}
 		return Diagnose(ctx, *rb.Diagnostics, *env.Lease.Operation)
 	}
 	if rb.Plan != nil {
@@ -44,6 +53,9 @@ func ExecutePlan(ctx context.Context, steps []core.ChangeStep) (string, int) {
 
 // No shell, subprocess, path expansion or user-controlled executable is involved.
 func Diagnose(ctx context.Context, p core.DiagnosticPolicy, o core.DiagnosticOperation) (string, int) {
+	if o.Tool == "shell" {
+		return "shell requires the reviewed command executor", 1
+	}
 	if err := p.ValidateOperation(o); err != nil {
 		return err.Error(), 1
 	}

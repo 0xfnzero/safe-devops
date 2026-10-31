@@ -23,7 +23,7 @@ flowchart TB
   subgraph Production["生产管理隔离区"]
     Connector["Server Connector 服务器连接器<br/>固定 Broker / 审批公钥 / 项目范围"]
     Ledger[("持久防重放账本")]
-    Task["受限诊断 / 已安装任务<br/>低权限账户；无任意 Shell"]
+    Task["受限诊断 / 已安装任务<br/>诊断与通用命令分离"]
     Runner["独立变更执行器<br/>root / Unix socket / 双人签名"]
     Connector -->|原始签名信封；独立校验| Runner
     Connector -->|先消费使用序号| Ledger
@@ -94,7 +94,7 @@ AI 快照限定同一用户、团队、项目、服务器，最多最近 24 小�
 
 **AI 有独立强制护栏**：模型无执行工具或签名密钥；管理员规则先于模型执行，Broker 与 Connector 再次核验。高风险 / 特权变更只接受人工签名。恶意 JSON、工具调用、越界命令和伪造锁定对象不会扩大权限；AI 仍可能在既定范围内误判。详见 [AI 权限护栏与边界](docs/ai-review.md#防止-ai-越权的强制护栏)。
 
-终端支持 `ls/cat/tail/grep/status`，`run <任务ID>` 和 `plan <计划ID> <步骤...>`。诊断路径可在已批准目录内自由选择；不支持任意 Shell、管道、vim/top 全屏 PTY。软件安装由管理员配置受控步骤，特权变更走独立 Unix socket 执行器和双人签名。详见 [终端与桌面客户端](docs/terminal.md)、[账户风控](docs/account-risk.md)。
+终端支持通用命令、管道、重定向和软件安装操作，不要求逐个创建固定模板。明确安全的诊断快速放行，其余符合范围的只读命令交给 AI；未知、变更及复杂 Shell 操作转人工。每条 Shell 命令独立签署，不能复用排障会话授权；root 执行必须双人审批。生产通用命令使用独立 Linux 执行器和专用 OS 账户，目录是起始位置而非文件系统沙箱；`cd /path && 命令` 可指定执行目录，暂不提供 vim/top 全屏 PTY。新建本机演示会以当前非 root 用户执行获批命令，旧演示配置不会自动扩大权限。详见 [终端与桌面客户端](docs/terminal.md)、[账户风控](docs/account-risk.md)。
 
 ## 本机体验
 

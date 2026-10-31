@@ -1,4 +1,5 @@
 export type DiagnosticOperation = {
+  command?: string;
   tool: string;
   resource?: string;
   path?: string;
@@ -6,6 +7,14 @@ export type DiagnosticOperation = {
   lines?: number;
 };
 export type DiagnosticPolicy = {
+  shell?: {
+    directory: string;
+    uid: number;
+    gid: number;
+    timeout_seconds: number;
+    privileged?: boolean;
+    demo?: boolean;
+  };
   roots: { id: string; path: string }[];
   tools: string[];
   auto_tools?: string[];
@@ -38,6 +47,7 @@ export type RiskContext = {
   }[];
 };
 export function operationLabel(o?: DiagnosticOperation) {
+  if (o?.tool === "shell") return o.command || "";
   return o
     ? [
         o.tool,

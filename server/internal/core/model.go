@@ -341,6 +341,9 @@ func (c Config) Validate(demo bool) error {
 			if a.ID == "" || acts[a.ID] || !ValidHash(a.CommandHash) || a.RunbookSpec().ValidateSpec(true) != nil {
 				return errors.New("invalid action")
 			}
+			if !demo && a.Diagnostics != nil && a.Diagnostics.Shell != nil && a.Diagnostics.Shell.Demo {
+				return errors.New("demo shell is forbidden in production")
+			}
 			if e := a.Review.Validate(a.Quorum); e != nil {
 				return e
 			}

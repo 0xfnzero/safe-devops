@@ -86,6 +86,9 @@ func (w *Worker) allowed(req core.Request) (core.Intent, Rule, bool) {
 	if i.Version == 4 && (i.Kind != "command" && i.Kind != "session" || i.Scope == nil || len(i.Plan) > 0 || i.Scope.Validate() != nil) {
 		return i, Rule{}, false
 	}
+	if i.Version == 4 && i.Operation != nil && i.Operation.Tool == "shell" && (i.Scope.Shell == nil || i.Scope.Shell.Privileged || core.ShellReview(i.Operation.Command) != "ai") {
+		return i, Rule{}, false
+	}
 	if i.Version == 4 {
 		if i.Kind == "command" && (i.Operation == nil || i.MaxUses != 1 || i.Scope.ValidateOperation(*i.Operation) != nil) {
 			return i, Rule{}, false

@@ -86,8 +86,8 @@ func ChangeRunner(ctx context.Context, c core.AgentConfig) error {
 		return err
 	}
 	for _, rb := range c.Runbooks {
-		if rb.Plan == nil || !rb.Plan.Privileged || rb.Quorum < 2 {
-			return errors.New("runner config must contain only privileged plans")
+		if !runnerPolicy(rb) {
+			return errors.New("runner config must contain only reviewed shell profiles or privileged plans")
 		}
 	}
 	dir := filepath.Dir(c.ChangeSocket)
