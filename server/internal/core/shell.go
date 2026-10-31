@@ -45,9 +45,6 @@ func (d DiagnosticPolicy) Admit(line string) (DiagnosticOperation, error) {
 			return op, nil
 		}
 	}
-	if d.Shell == nil {
-		return op, errors.New("general command execution is not configured on this server; an administrator must install the reviewed shell executor")
-	}
 	op = DiagnosticOperation{Tool: "shell", Command: line}
 	return op, d.ValidateOperation(op)
 }

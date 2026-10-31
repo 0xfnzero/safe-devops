@@ -30,7 +30,7 @@ def main():
             fail("WEB_PORT 必须为有效端口。")
         run([tool("npm"), "run", "dev", "--", "--port", port], cwd=ROOT / "web")
     elif action == "docker-build":
-        for component in ("server", "web"):
+        for component in ("server", "web", "gateway"):
             run([tool("docker"), "build", "--build-arg", f"VERSION={version()}", "-f", f"deploy/docker/{component}.Dockerfile", "-t", f"safe-devops-{component}:{version()}", "."], cwd=ROOT)
     else:
         fail("未知命令。")

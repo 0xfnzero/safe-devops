@@ -52,7 +52,10 @@ services:
       retries: 3
     logging: *logging
   gateway:
-    image: caddy:2.10.2-alpine
+    image: safe-devops-gateway:${SAFEOPS_VERSION:-0.4.1}
+    build:
+      context: ..
+      dockerfile: deploy/docker/gateway.Dockerfile
     user: "${SAFEOPS_UID}:${SAFEOPS_GID}"
     command: [caddy, run, --config, /etc/safe-devops/Caddyfile, --adapter, caddyfile]
     volumes: ["${SAFEOPS_CONFIG_DIR}/gateway:/etc/safe-devops:ro"]

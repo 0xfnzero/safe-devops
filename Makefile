@@ -120,7 +120,7 @@ package-linux: ## Linux 上构建 AppImage / deb；DESKTOP_ARCH=amd64 或 arm64
 release: ## 构建四平台 CLI 包、当前平台 Web 包及源码包；VERSION=版本号
 	@$(PYTHON) scripts/package.py release
 
-docker-build: ## 构建当前 Docker 平台的 server / web 镜像
+docker-build: ## 构建当前 Docker 平台的 server / web / gateway 镜像
 	@$(PYTHON) scripts/tasks.py docker-build
 
 ##@ Docker Compose 服务器部署（CONFIG_DIR=配置目录）
