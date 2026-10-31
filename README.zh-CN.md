@@ -43,7 +43,7 @@ safe-devops 用于降低“开发 / 运维日常电脑失陷 → SSH / GitHub �
 
 当前提供可运行的闭环及部署工具，**尚未经过独立安全审计，不应被视为已经验证的大规模生产 SaaS**。适合先在受控管理网络内试点。具体限制见 [安全边界](docs/architecture.md) 和 [验证记录](docs/validation.md)。本项目不对任何具体公司事故的经过作事实判断。
 
-![safe-devops 安全运维终端：连续命令输出、规则与 AI 审核、会话授权](docs/screenshots/terminal-continuous-dark.png)
+![safe-devops 中文安全运维终端：连续命令输出、规则放行与 AI 审核](docs/screenshots/terminal-zh-CN-dark.jpg)
 
 ## 网络与信任边界
 

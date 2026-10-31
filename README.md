@@ -43,7 +43,7 @@ safe-devops is a **self-hosted DevSecOps platform for secure server access and o
 
 Use a familiar command interface for diagnostics and approved tasks. Automatically allow explicitly permitted low-risk operations, send other eligible commands to an AI reviewer, and hand uncertain or high-risk operations to independent human reviewers. Keep teams, projects, servers, approvals and audit records in one control plane.
 
-![safe-devops secure DevOps terminal with continuous command output, AI review and scoped session authorization](docs/screenshots/terminal-continuous-dark.png)
+![safe-devops secure DevOps terminal in English with continuous command output, policy checks and AI review](docs/screenshots/terminal-en-dark.jpg)
 
 ## Why safe-devops?
 
