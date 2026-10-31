@@ -12,7 +12,7 @@ import tempfile
 from tasklib import ROOT, cli, digest, env, fail, host, run, tool, version
 
 PLATFORMS = [(system, arch) for system in ("linux", "darwin") for arch in ("amd64", "arm64")]
-SOURCE_PATHS = ["Makefile", "README.md", "README.zh-CN.md", "CHANGELOG.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md", ".gitignore", ".dockerignore", ".github", "server", "web", "desktop", "scripts", "deploy", "docs"]
+SOURCE_PATHS = ["Makefile", "README.md", "README.zh-CN.md", "CHANGELOG.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md", ".gitignore", ".dockerignore", ".github", "assets", "server", "web", "desktop", "scripts", "deploy", "docs"]
 EXCLUDES = ["node_modules", ".next", ".git", ".safeops", "dist", "bin", "__pycache__", "*.pyc", "*.tsbuildinfo", "next-env.d.ts", ".env*", "*.key", "*.pem", "*.crt", "*.token", "*.db", "*.db-*", ".DS_Store", "safe-devops", "safeops"]
 
 

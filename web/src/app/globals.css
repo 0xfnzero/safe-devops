@@ -245,13 +245,10 @@ label {
   white-space: nowrap;
 }
 .brand-mark {
-  display: grid;
-  place-items: center;
-  height: 33px;
-  width: 33px;
-  color: var(--primary-ink);
-  background: var(--primary);
-  border-radius: 8px;
+  display: block;
+  flex: none;
+  height: 40px;
+  width: 40px;
 }
 .brand-label {
   font-size: 8px;

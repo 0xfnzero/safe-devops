@@ -23,7 +23,7 @@ ifeq ($(origin VERSION),command line)
 export SAFEOPS_VERSION := $(VERSION)
 endif
 
-.PHONY: shell-config help setup setup-desktop doctor dev demo dev-backend dev-web dev-desktop desktop build build-all build-web test test-web test-desktop test-scripts check smoke smoke-tls desktop-check package-server package-servers package-web package-source package-desktop package-macos package-windows package-linux release docker-build deploy-init deploy-check deploy-up deploy-status deploy-logs deploy-health deploy-restart deploy-stop deploy-down deploy-backup deploy-restore deploy-upgrade deploy-policy-apply install install-check service-start service-stop service-status service-logs
+.PHONY: icons shell-config help setup setup-desktop doctor dev demo dev-backend dev-web dev-desktop desktop build build-all build-web test test-web test-desktop test-scripts check smoke smoke-tls desktop-check package-server package-servers package-web package-source package-desktop package-macos package-windows package-linux release docker-build deploy-init deploy-check deploy-up deploy-status deploy-logs deploy-health deploy-restart deploy-stop deploy-down deploy-backup deploy-restore deploy-upgrade deploy-policy-apply install install-check service-start service-stop service-status service-logs
 
 ##@ 入门与开发
 help: ## 显示所有命令和说明（直接 make 等同于 make help）
@@ -64,6 +64,9 @@ build: ## 构建本机 Go CLI 到 bin/safe-devops
 
 build-all: ## 交叉构建 Linux / macOS 的 amd64、arm64 Go CLI
 	@$(PYTHON) scripts/package.py binaries
+
+icons: ## 从 SVG 原稿生成桌面各平台图标与 Web 图标（先 make setup）
+	@node scripts/build-icons.mjs
 
 build-web: ## 构建当前平台的 Next.js 生产版本
 	cd web && npm run build

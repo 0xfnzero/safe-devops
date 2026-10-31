@@ -1,6 +1,7 @@
 "use client";
 
 import { Select, SelectItem } from "@/components/select";
+import Image from "next/image";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -23,7 +24,6 @@ import {
   Plus,
   RefreshCw,
   Server,
-  Shield,
   ShieldCheck,
   Sparkles,
   Terminal,
@@ -102,9 +102,14 @@ function Badge({ status }: { status: string }) {
 function Brand() {
   return (
     <div className="wordmark">
-      <span className="brand-mark">
-        <Shield size={21} />
-      </span>
+      <Image
+        className="brand-mark"
+        src="/brand/icon.png"
+        width={40}
+        height={40}
+        alt=""
+        unoptimized
+      />
       safe-devops
     </div>
   );

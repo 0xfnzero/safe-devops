@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>safe-devops</title>
+  <defs>
+    <linearGradient id="gold" x1="104" y1="64" x2="400" y2="452" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE7A0"/>
+      <stop offset=".45" stop-color="#F5C44B"/>
+      <stop offset="1" stop-color="#D99B24"/>
+    </linearGradient>
+    <linearGradient id="core" x1="148" y1="120" x2="364" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2A2D30"/>
+      <stop offset="1" stop-color="#131517"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#gold)" d="M256 32 432 98Q448 104 448 122V240C448 354 372 438 256 490 140 438 64 354 64 240V122Q64 104 80 98Z"/>
+  <path fill="url(#core)" d="m256 89 136 51v100c0 81-55 147-136 190-81-43-136-109-136-190V140Z"/>
+  <path fill="none" stroke="url(#gold)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" d="m188 205 48 45-48 45m94 0h48"/>
+</svg>

@@ -6,6 +6,7 @@ let deviceKey;
 let deviceLoading;
 const fs = require("node:fs/promises");
 const path = require("node:path");
+const applicationIcon = path.join(__dirname, "../assets/icon.png");
 const { pathToFileURL } = require("node:url");
 const { consoleOrigin, allowedURL } = require("./policy.cjs");
 let launcher;
@@ -43,7 +44,7 @@ function lockPermissions(session) {
 }
 function isLauncher(event) { return launcher && !launcher.isDestroyed() && event.sender === launcher.webContents && event.senderFrame?.url === launcherURL; }
 function makeLauncher() {
-  launcher = new BrowserWindow({ width: 680, height: 770, minWidth: 480, minHeight: 650, title: "safe-devops", backgroundColor: "#131316", webPreferences: { preload: path.join(__dirname, "preload.cjs"), sandbox: true, contextIsolation: true, nodeIntegration: false, webviewTag: false, partition: "launcher" } });
+  launcher = new BrowserWindow({ width: 680, height: 770, minWidth: 480, minHeight: 650, title: "safe-devops", icon: applicationIcon, backgroundColor: "#131316", webPreferences: { preload: path.join(__dirname, "preload.cjs"), sandbox: true, contextIsolation: true, nodeIntegration: false, webviewTag: false, partition: "launcher" } });
   launcher.removeMenu(); lockPermissions(launcher.webContents.session);
   launcher.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
   launcher.webContents.on("will-navigate", e => e.preventDefault());
@@ -51,7 +52,7 @@ function makeLauncher() {
 }
 async function openConsole(origin) {
   const key=await loadDevice(); await verifyMachine(origin,key);
-  const win = new BrowserWindow({ width: 1440, height: 960, minWidth: 800, minHeight: 600, title: "safe-devops", backgroundColor: "#131316", webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, webSecurity: true, webviewTag: false, safeDialogs: true, navigateOnDragDrop: false, partition: `console-${Date.now()}-${Math.random()}` } });
+  const win = new BrowserWindow({ width: 1440, height: 960, minWidth: 800, minHeight: 600, title: "safe-devops", icon: applicationIcon, backgroundColor: "#131316", webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, webSecurity: true, webviewTag: false, safeDialogs: true, navigateOnDragDrop: false, partition: `console-${Date.now()}-${Math.random()}` } });
   consoles.add(win); win.removeMenu();
   const session = win.webContents.session;
   lockPermissions(session);
@@ -76,6 +77,7 @@ async function openConsole(origin) {
   catch { win.close(); throw new Error("Console unavailable or certificate untrusted / 控制台不可用或证书不受信任"); }
 }
 app.whenReady().then(() => {
+  if (process.platform === "darwin" && !app.isPackaged) app.dock?.setIcon(applicationIcon);
   ipcMain.handle("settings", async event => {
     if (!isLauncher(event)) throw new Error("Denied");
     let origin = ""; try { origin = consoleOrigin(JSON.parse(await fs.readFile(path.join(app.getPath("userData"), "console.json"), "utf8")).origin, allowLocal); } catch {}
