@@ -25,7 +25,8 @@ def expected_assets(ver):
     for system, extensions in (("linux", ("AppImage", "deb")), ("mac", ("dmg", "zip")), ("win", ("exe",))):
         for arch in ("x64", "arm64"):
             for ext in extensions:
-                names.add(f"safe-devops-{ver}-{system}-{arch}.{ext}")
+                artifact_arch = {"AppImage": "x86_64", "deb": "amd64"}.get(ext, arch) if arch == "x64" else arch
+                names.add(f"safe-devops-{ver}-{system}-{artifact_arch}.{ext}")
     return names
 
 

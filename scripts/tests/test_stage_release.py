@@ -10,7 +10,12 @@ from stage_release import collect_verified, expected_assets
 
 class ReleaseAssetsTest(unittest.TestCase):
     def test_all_native_targets_are_distinct(self):
-        self.assertEqual(len(expected_assets("0.4.1")), 19)
+        names = expected_assets("0.4.1")
+        self.assertEqual(len(names), 19)
+        # electron-builder uses package-format-specific architecture names.
+        self.assertIn("safe-devops-0.4.1-linux-x86_64.AppImage", names)
+        self.assertIn("safe-devops-0.4.1-linux-amd64.deb", names)
+        self.assertIn("safe-devops-0.4.1-win-x64.exe", names)
 
     def test_checksum_and_completeness_are_required(self):
         with tempfile.TemporaryDirectory() as directory:
