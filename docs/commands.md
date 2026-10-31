@@ -89,6 +89,8 @@ shasum -a 256 -c safe-devops-server-0.4.1-linux-amd64.tar.gz.sha256
 
 `scripts/release.sh 0.4.1` 保留为 `make release VERSION=0.4.1` 的等价入口；新版产物按组件、系统和架构拆分，不再把本机 Web 依赖放进通用 Linux 包。
 
+GitHub 发布流程：在目标提交手动运行 `Build packages`，等待全部原生平台构建和该提交的 CI 成功，再创建指向同一提交的版本 tag 与空白 Draft Release。手动运行 `Stage release assets`，输入不带 `v` 的版本号与打包 run ID；它会核对提交 / tag / CI、校验全部 19 个包的 SHA-256、生成源码包和汇总 `SHA256SUMS`，上传后仍保持草稿，由维护者检查再发布。已有资产不会覆盖；失败的部分上传需检查清理后重新运行。
+
 ## 桌面安装包
 
 ```bash

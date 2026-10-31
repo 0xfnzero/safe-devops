@@ -1,10 +1,14 @@
-# v0.4 开发验证记录
+# v0.4.1 开发与发布验证记录
 
-日期：2026-10-31（Asia/Shanghai），macOS arm64。本记录区分实际完成的本地检查与尚需目标环境验证的项目，不代表独立安全审计。
+日期：2026-10-31（Asia/Shanghai），macOS arm64。本记录区分实际完成的本地 / GitHub Actions 检查与尚需目标环境验证的项目，不代表独立安全审计。
 
 ## 已完成
 
-- Make / 发布工具：默认 `make` 与 `make help` 输出一致，所有公开命令有说明；17 项脚本测试覆盖打包排除秘密文件、失败清理、禁止覆盖、部署目录空格、版本固定、备份失败阻止升级、多团队全部备份、恢复拒绝运行中的 Broker、SQLite 不启动 PostgreSQL、保留持久卷。实际完成 Linux/macOS amd64/arm64 四种 Go CLI 打包、本机 macOS arm64 Web standalone 与未签名 Electron DMG/ZIP 构建；版本标签为 `0.4.1-devtools`，不代表正式发布。SQLite / PostgreSQL 两种 `make deploy-init` 和 Linux Connector 的 `make install-check` 通过；隔离端口上实际启动 Broker、两个 Connector 和模拟 Reviewer，Ctrl+C 后子进程退出，端口可重新使用。新增 GitHub 原生平台打包矩阵，尚未远程执行；本机仍没有 Docker Engine / Linux systemd，不能据此宣称容器启动、真实主机安装或 Windows/Linux 桌面包已验证。
+- 通用命令：配置 Shell 执行策略后支持提交管道、重定向、脚本和安装命令；保留原始命令与原生 `/bin/sh -c` 语义，使用精确单次签名。真实演示验证 `ls -la` 规则直通、`df -h` 模拟 AI、管道命令独立人工批准后执行。回归测试覆盖审批后篡改命令 / 目录 / UID、伪造 AI 签名、借用诊断会话授权、继承敏感环境及生产误用 demo 模式。Linux CI 已以真实不同 UID 执行，确认组 / capabilities 清空、no_new_privs 生效且无法读取执行器私有凭据。
+- 下拉与输入：统一可访问的 Radix Select，验证键盘选择、Esc 返回原表单、深浅色菜单、输入框单层聚焦边框；TypeScript、ESLint 与生产构建通过。
+- Docker Compose：GitHub Linux runner 已实际构建并运行 SQLite / PostgreSQL 两套栈，完成 HTTPS Web 代理、mTLS、逐请求设备签名、独立审批、命令执行、备份与重启（[运行记录](https://github.com/0xfnzero/safe-devops/actions/runs/41151101435)，两项 containers 作业通过）。网关保留 `cap_drop: ALL` 和 `no-new-privileges`；镜像移除不需要的低端口文件 capability。
+
+- Make / 发布工具：默认 `make` 与 `make help` 输出一致，所有公开命令有说明；17 项脚本测试覆盖打包排除秘密文件、失败清理、禁止覆盖、部署目录空格、版本固定、备份失败阻止升级、多团队全部备份、恢复拒绝运行中的 Broker、SQLite 不启动 PostgreSQL、保留持久卷。实际完成 Linux/macOS amd64/arm64 四种 Go CLI 打包、本机 macOS arm64 Web standalone 与未签名 Electron DMG/ZIP 构建；版本标签为 `0.4.1-devtools`，不代表正式发布。SQLite / PostgreSQL 两种 `make deploy-init` 和 Linux Connector 的 `make install-check` 通过；隔离端口上实际启动 Broker、两个 Connector 和模拟 Reviewer，Ctrl+C 后子进程退出，端口可重新使用。GitHub 原生平台打包矩阵已实际完成 Linux/macOS amd64/arm64 的 CLI/Web 包及 Linux/macOS/Windows amd64/arm64 桌面安装包构建（[运行记录](https://github.com/0xfnzero/safe-devops/actions/runs/41150663329)）。安装包构建成功不代表每个平台已完成安装与密钥环运行验证。
 - 终端交互改版：主界面使用连续命令 / 输出 / 提示符区域、16px 默认等宽字体和可收起服务器列表。浏览器实际完成规则直通 `ls`、模拟 AI 审核 `grep`、Tab 补全、↑/↓ 历史与草稿恢复、Ctrl+R 搜索、help 参考填入、Ctrl+L 清屏；提交后焦点回到输入行。新会话入口预选当前服务器 / 排障范围，申请两次额度后从主终端执行 `ls` / `status`，额度用尽时禁用提交且不自动切换授权方式。中英文 / 深浅色、390px 和 1280px 宽度下均无页面横向溢出；TypeScript、ESLint、生产构建通过。截图：`docs/screenshots/terminal-continuous-dark.png`、`docs/screenshots/terminal-continuous-light-en.png`。本轮仅更新 Web 界面和文档，现有 v0.4.0 归档未重打包。
 - 本轮新增设备验证：每次人工 API 请求要求凭证绑定的 Ed25519 签名；无设备证明、身份 / 路径 / 方法 / 请求体被修改、错误机器、过期 / 超前时钟、重放均拒绝。设备预验证不授权后续请求，也不授予其他成员 / 团队权限。
 - SQLite 和临时 PostgreSQL：两个 Broker / 数据库连接并发提交同一签名，仅一次成功；关闭连接、重建 Broker 后继续拒绝重放，新的请求正常通过。可选 CIDR、伪造 XFF、受信代理链和变更源端口绕过限流有回归用例。
@@ -33,10 +37,10 @@
 
 ## 未在当前环境完成
 
-- 当前机器没有 Docker Engine，**未实际构建/运行容器栈**。已加入 `scripts/ci-compose.sh` 和 GitHub Actions SQLite/PostgreSQL 矩阵，执行容器启动、Web 代理、TLS/mTLS、独立审批、执行、备份与重启；这些 CI 作业尚未远程运行，不能视为已通过。
+- 本机没有 Docker Engine；容器构建和运行验证由上述 GitHub Linux runner 完成，仍需在实际部署主机验证其网络、磁盘权限和备份策略。
 - systemd 安装只检查语法与 dry-run，没有在真实 Linux 主机安装服务。
-- Windows / Linux 桌面安装包、操作系统密钥环兼容矩阵、macOS 签名 / 公证未验证；没有 TPM / Secure Enclave 不可导出设备密钥或硬件远程证明。
+- Windows / Linux 桌面包已构建，实际安装 / 操作系统密钥环兼容矩阵、macOS 签名 / 公证未验证；没有 TPM / Secure Enclave 不可导出设备密钥或硬件远程证明。
 - 未调用真实模型供应商，也未评估模型判断准确性。演示明确标记本地模拟器。
-- 未修改公网、生产服务器、GitHub 组织策略或远程仓库。没有独立安全审计、压力测试、灾备演练、HA 或公网 SaaS 上线认证。
+- 已建立公开 GitHub 项目和发布流水线；未修改生产服务器或 GitHub 组织策略。没有独立安全审计、压力测试、灾备演练、HA 或公网 SaaS 上线认证。
 
 当前按团队保存完整状态文档，审计会增长；部署需控制规模并验证容量。身份配置仍由管理员维护，没有成员邀请 / OIDC / 在线权限编辑。详细限制见 [架构](architecture.md) 和 [部署](deployment.md)。

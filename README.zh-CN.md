@@ -4,7 +4,7 @@
 
 **让开发和运维人员申请操作，让服务器独立验证授权。** 开源受限运维平台，Go + Next.js + Electron，MIT License。支持中文 / English、浅色 / 深色主题，默认 SQLite，也可使用 PostgreSQL。
 
-safe-devops 用于降低“开发 / 运维日常电脑失陷 → SSH / GitHub 凭据被盗 → 横向进入生产”的风险。它不依赖开发 / 运维日常电脑上的确认弹窗：服务器连接器执行受限诊断命令、已安装任务和经批准的变更计划，并验证独立签名、目录范围、期限和次数。开发与运维人员通过终端输入命令，不持有生产 SSH 私钥。
+safe-devops 用于降低“开发 / 运维日常电脑失陷 → SSH / GitHub 凭据被盗 → 横向进入生产”的风险。它不依赖开发 / 运维日常电脑上的确认弹窗：服务器连接器执行受限诊断、已安装任务、经逐条审核的通用 Shell 命令和变更计划，并验证独立签名、目录范围、期限和次数。开发与运维人员通过终端输入命令，不持有生产 SSH 私钥。
 
 当前提供可运行的闭环及部署工具，**尚未经过独立安全审计，不应被视为已经验证的大规模生产 SaaS**。适合先在受控管理网络内试点。具体限制见 [安全边界](docs/architecture.md) 和 [验证记录](docs/validation.md)。本项目不对任何具体公司事故的经过作事实判断。
 
@@ -24,7 +24,7 @@ flowchart TB
     Connector["Server Connector 服务器连接器<br/>固定 Broker / 审批公钥 / 项目范围"]
     Ledger[("持久防重放账本")]
     Task["受限诊断 / 已安装任务<br/>诊断与通用命令分离"]
-    Runner["独立变更执行器<br/>root / Unix socket / 双人签名"]
+    Runner["独立命令与变更执行器<br/>专用系统账户 / Unix socket<br/>root 操作双人签名"]
     Connector -->|原始签名信封；独立校验| Runner
     Connector -->|先消费使用序号| Ledger
     Connector -->|验证通过后运行| Task
