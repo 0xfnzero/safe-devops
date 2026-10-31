@@ -1,12 +1,45 @@
-# safe-devops — Open-Source DevSecOps Access Control
+<div align="center">
+    <h1>🛡️ safe-devops</h1>
+    <h3><em>Open-source DevSecOps access control for development and operations teams</em></h3>
+</div>
 
-**Secure server operations for development and operations teams, with scoped commands, device-bound access, and AI or human approval.**
+<p align="center">
+    <strong>Secure server operations for development and operations teams, with device-bound access, reviewed shell commands, and AI or human approval. Built with Go, Next.js and Electron; self-hosted with SQLite or PostgreSQL.</strong>
+</p>
 
-[![CI](https://github.com/0xfnzero/safe-devops/actions/workflows/ci.yml/badge.svg)](https://github.com/0xfnzero/safe-devops/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/0xfnzero/safe-devops)](https://github.com/0xfnzero/safe-devops/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p align="center">
+    <a href="https://github.com/0xfnzero/safe-devops/releases">
+        <img src="https://img.shields.io/github/v/release/0xfnzero/safe-devops" alt="Release">
+    </a>
+    <a href="https://github.com/0xfnzero/safe-devops/actions/workflows/ci.yml">
+        <img src="https://github.com/0xfnzero/safe-devops/actions/workflows/ci.yml/badge.svg" alt="CI">
+    </a>
+    <a href="https://github.com/0xfnzero/safe-devops/blob/main/LICENSE">
+        <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+    </a>
+    <a href="https://github.com/0xfnzero/safe-devops">
+        <img src="https://img.shields.io/github/stars/0xfnzero/safe-devops?style=social" alt="GitHub stars">
+    </a>
+    <a href="https://github.com/0xfnzero/safe-devops/network">
+        <img src="https://img.shields.io/github/forks/0xfnzero/safe-devops?style=social" alt="GitHub forks">
+    </a>
+</p>
 
-**English** · [简体中文](README.zh-CN.md) · [Website](https://fnzero.dev/) · [Downloads](https://github.com/0xfnzero/safe-devops/releases) · [Deployment](docs/deployment.md) · [Make commands](docs/commands.md)
+<p align="center">
+    <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js">
+    <img src="https://img.shields.io/badge/Electron-47848F?style=for-the-badge&logo=electron&logoColor=white" alt="Electron">
+</p>
+
+<p align="center">
+    <a href="https://github.com/0xfnzero/safe-devops/blob/main/README.zh-CN.md">中文</a> |
+    <a href="https://github.com/0xfnzero/safe-devops/blob/main/README.md">English</a> |
+    <a href="https://fnzero.dev/">Website</a> |
+    <a href="https://t.me/fnzero_group">Telegram</a> |
+    <a href="https://discord.gg/vuazbGkqQE">Discord</a>
+</p>
+
+Current version: **0.4.1**. [Downloads](https://github.com/0xfnzero/safe-devops/releases) · [Deployment](docs/deployment.md) · [Make commands](docs/commands.md).
 
 safe-devops is a **self-hosted DevSecOps platform for secure server access and operations approval**, built with Go, Next.js and Electron. It helps contain the impact of a compromised developer or operator workstation: production servers independently verify narrowly scoped, signed operations instead of trusting a personal workstation's SSH session.
 

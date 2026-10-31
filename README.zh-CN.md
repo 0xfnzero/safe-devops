@@ -1,8 +1,45 @@
-# safe-devops — 开源 DevSecOps 与安全运维访问控制
+<div align="center">
+    <h1>🛡️ safe-devops</h1>
+    <h3><em>面向开发和运维团队的开源 DevSecOps 安全访问控制平台</em></h3>
+</div>
 
-[English](README.md) · **简体中文** · [官网](https://fnzero.dev/) · [版本下载](https://github.com/0xfnzero/safe-devops/releases)
+<p align="center">
+    <strong>让开发和运维人员申请操作，让服务器独立验证授权。支持设备身份验证、通用命令审核以及 AI 与人工分层审批，采用 Go、Next.js 和 Electron，支持 SQLite 或 PostgreSQL 自托管部署。</strong>
+</p>
 
-**让开发和运维人员申请操作，让服务器独立验证授权。** 开源受限运维平台，Go + Next.js + Electron，MIT License。支持中文 / English、浅色 / 深色主题，默认 SQLite，也可使用 PostgreSQL。
+<p align="center">
+    <a href="https://github.com/0xfnzero/safe-devops/releases">
+        <img src="https://img.shields.io/github/v/release/0xfnzero/safe-devops" alt="Release">
+    </a>
+    <a href="https://github.com/0xfnzero/safe-devops/actions/workflows/ci.yml">
+        <img src="https://github.com/0xfnzero/safe-devops/actions/workflows/ci.yml/badge.svg" alt="CI">
+    </a>
+    <a href="https://github.com/0xfnzero/safe-devops/blob/main/LICENSE">
+        <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+    </a>
+    <a href="https://github.com/0xfnzero/safe-devops">
+        <img src="https://img.shields.io/github/stars/0xfnzero/safe-devops?style=social" alt="GitHub stars">
+    </a>
+    <a href="https://github.com/0xfnzero/safe-devops/network">
+        <img src="https://img.shields.io/github/forks/0xfnzero/safe-devops?style=social" alt="GitHub forks">
+    </a>
+</p>
+
+<p align="center">
+    <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js">
+    <img src="https://img.shields.io/badge/Electron-47848F?style=for-the-badge&logo=electron&logoColor=white" alt="Electron">
+</p>
+
+<p align="center">
+    <a href="https://github.com/0xfnzero/safe-devops/blob/main/README.zh-CN.md">中文</a> |
+    <a href="https://github.com/0xfnzero/safe-devops/blob/main/README.md">English</a> |
+    <a href="https://fnzero.dev/">Website</a> |
+    <a href="https://t.me/fnzero_group">Telegram</a> |
+    <a href="https://discord.gg/vuazbGkqQE">Discord</a>
+</p>
+
+当前版本：**0.4.1**。[版本下载](https://github.com/0xfnzero/safe-devops/releases) · [部署指南](docs/deployment.md) · [Make 命令](docs/commands.md)。
 
 safe-devops 用于降低“开发 / 运维日常电脑失陷 → SSH / GitHub 凭据被盗 → 横向进入生产”的风险。它不依赖开发 / 运维日常电脑上的确认弹窗：服务器连接器执行受限诊断、已安装任务、经逐条审核的通用 Shell 命令和变更计划，并验证独立签名、目录范围、期限和次数。开发与运维人员通过终端输入命令，不持有生产 SSH 私钥。
 
