@@ -1,12 +1,12 @@
 # Generate the separate service directories with `safe-devops init-compose`.
 services:
   broker:
-    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.1}
+    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.2}
     build:
       context: ..
       dockerfile: deploy/docker/server.Dockerfile
       args:
-        VERSION: ${SAFEOPS_VERSION:-0.4.1}
+        VERSION: ${SAFEOPS_VERSION:-0.4.2}
     user: "${SAFEOPS_UID:?Run init-compose}:${SAFEOPS_GID:?Run init-compose}"
     command: [broker, --config, /etc/safe-devops/broker.json]
     env_file: ["${SAFEOPS_CONFIG_DIR:?Run init-compose}/broker/broker.env"]
@@ -31,7 +31,7 @@ services:
       driver: json-file
       options: {max-size: 10m, max-file: "3"}
   web:
-    image: safe-devops-web:${SAFEOPS_VERSION:-0.4.1}
+    image: safe-devops-web:${SAFEOPS_VERSION:-0.4.2}
     build:
       context: ..
       dockerfile: deploy/docker/web.Dockerfile
@@ -52,7 +52,7 @@ services:
       retries: 3
     logging: *logging
   gateway:
-    image: safe-devops-gateway:${SAFEOPS_VERSION:-0.4.1}
+    image: safe-devops-gateway:${SAFEOPS_VERSION:-0.4.2}
     build:
       context: ..
       dockerfile: deploy/docker/gateway.Dockerfile

@@ -1,7 +1,7 @@
 # Deploy on an independent approval host, with its own private bundle.
 services:
   reviewer:
-    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.1}
+    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.2}
     build: {context: .., dockerfile: deploy/docker/server.Dockerfile}
     user: "${SAFEOPS_UID:?Set reviewer UID}:${SAFEOPS_GID:?Set reviewer GID}"
     command: [reviewer, --config, /etc/safe-devops/reviewer.json]

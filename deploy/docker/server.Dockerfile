@@ -3,7 +3,7 @@ WORKDIR /src
 COPY server/go.mod server/go.sum ./
 RUN go mod download
 COPY server/ ./
-ARG VERSION=0.4.1
+ARG VERSION=0.4.2
 RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o /safe-devops ./cmd/safe-devops
 
 FROM debian:bookworm-slim

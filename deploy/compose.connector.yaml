@@ -1,7 +1,7 @@
 # Runs fixed diagnostics INSIDE this container; it does not operate the host.
 services:
   connector:
-    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.1}
+    image: safe-devops-server:${SAFEOPS_VERSION:-0.4.2}
     build: {context: .., dockerfile: deploy/docker/server.Dockerfile}
     user: "${SAFEOPS_UID:?Set the UID owning the connector bundle}:${SAFEOPS_GID:?Set the GID}"
     command: [connector, --config, /etc/safe-devops/connector.json]

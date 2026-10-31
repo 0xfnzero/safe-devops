@@ -201,7 +201,7 @@ policy-apply 检查所有旧请求期限，未过期即拒绝；旧 Broker 进�
 
 ## 8. 无 Docker 安装与故障定位
 
-已有 PKI 时使用 `safe-devops init-config`（与 init-compose 相同业务参数，不需 web-url），再安装 TLS。`make release VERSION=0.4.1` 分别生成 Linux/macOS 双架构 CLI 包、当前构建平台的 Next standalone 包和源码包；CLI/Web 包用于原生/systemd 安装，Web 必须在目标 OS/架构上构建。Docker 的 `--build` 命令从源码仓库或 source 包运行。`scripts/install.sh --help` 提供各组件安装、`--dry-run`、`--upgrade` 与 `--start`。systemd 的 Web 需要 Node 22.18+，Broker 仍可只用 SQLite。升级备份文件留在 `/etc/safe-devops/*.previous.TIMESTAMP`；脚本不改防火墙或 SSH。
+已有 PKI 时使用 `safe-devops init-config`（与 init-compose 相同业务参数，不需 web-url），再安装 TLS。`make release VERSION=0.4.2` 分别生成 Linux/macOS 双架构 CLI 包、当前构建平台的 Next standalone 包和源码包；CLI/Web 包用于原生/systemd 安装，Web 必须在目标 OS/架构上构建。Docker 的 `--build` 命令从源码仓库或 source 包运行。`scripts/install.sh --help` 提供各组件安装、`--dry-run`、`--upgrade` 与 `--start`。systemd 的 Web 需要 Node 22.18+，Broker 仍可只用 SQLite。升级备份文件留在 `/etc/safe-devops/*.previous.TIMESTAMP`；脚本不改防火墙或 SSH。
 
 - 容器权限错误：核对 `.env` UID/GID 与配置、数据目录所有者；SQLite 目录不能组/全局可写。
 - Broker 不健康：检查证书 SAN、CA、DB 连接与 schema；`/healthz` 仅存活，`/readyz` 验证数据库连接，不代表所有任务可执行。

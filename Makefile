@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 .NOTPARALLEL:
 PYTHON ?= python3
-VERSION ?= 0.4.1
+VERSION ?= 0.4.2
 OS ?= linux
 ARCH ?= amd64
 DESKTOP_OS ?= native

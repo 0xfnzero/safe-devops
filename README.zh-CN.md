@@ -192,7 +192,7 @@ make build
 - `backup` / `restore`：按团队导出与恢复，可在 SQLite / PostgreSQL 间迁移；恢复只接受空分区并撤销活动授权。
 - `policy-apply`：等待旧授权过期后更新策略指纹，保留审计；旧进程拒绝继续执行。
 - `scripts/install.sh`：Linux systemd 安装、校验二进制 SHA-256、dry-run、升级备份。
-- `make release VERSION=0.4.1`：Linux/macOS 双架构 CLI、当前平台 Next standalone、源码部署包和 SHA-256 清单。
+- `make release VERSION=0.4.2`：Linux/macOS 双架构 CLI、当前平台 Next standalone、源码部署包和 SHA-256 清单。
 - `make package-macos` / `package-windows` / `package-linux`：在对应系统生成 Electron 安装包。
 - `make deploy-up` / `deploy-upgrade` / `deploy-backup`：Compose 启动、备份后升级及日常备份。
 

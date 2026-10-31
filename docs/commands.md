@@ -56,14 +56,14 @@ make smoke-tls             # 隔离临时环境的 TLS / 审批闭环
 
 ```bash
 make build                                      # 本机 bin/safe-devops
-make build-all VERSION=0.4.1                     # 四平台裸二进制 + SHA256SUMS
-make package-server VERSION=0.4.1 OS=linux ARCH=amd64
-make package-server VERSION=0.4.1 OS=linux ARCH=arm64
-make package-server VERSION=0.4.1 OS=darwin ARCH=arm64
-make package-servers VERSION=0.4.1               # 四种组合一次打包
-make package-web VERSION=0.4.1                   # 当前构建机 OS / 架构
-make package-source VERSION=0.4.1                # 可用于 Docker 构建的源码包
-make release VERSION=0.4.1                       # 四个 CLI 包 + 本机 Web + 源码
+make build-all VERSION=0.4.2                     # 四平台裸二进制 + SHA256SUMS
+make package-server VERSION=0.4.2 OS=linux ARCH=amd64
+make package-server VERSION=0.4.2 OS=linux ARCH=arm64
+make package-server VERSION=0.4.2 OS=darwin ARCH=arm64
+make package-servers VERSION=0.4.2               # 四种组合一次打包
+make package-web VERSION=0.4.2                   # 当前构建机 OS / 架构
+make package-source VERSION=0.4.2                # 可用于 Docker 构建的源码包
+make release VERSION=0.4.2                       # 四个 CLI 包 + 本机 Web + 源码
 ```
 
 输出目录 `dist/`。CLI 支持 `linux/amd64`、`linux/arm64`、`darwin/amd64`、`darwin/arm64`；CGO 关闭。**生产服务部署在 Linux**；macOS CLI 用于管理员操作与开发。Windows 使用 Electron 客户端，当前没有 Windows 服务端二进制。
@@ -75,19 +75,19 @@ make release VERSION=0.4.1                       # 四个 CLI 包 + 本机 Web +
 产物名称示例：
 
 ```text
-dist/safe-devops-server-0.4.1-linux-amd64.tar.gz
-dist/safe-devops-web-0.4.1-linux-amd64.tar.gz
-dist/safe-devops-source-0.4.1.tar.gz
+dist/safe-devops-server-0.4.2-linux-amd64.tar.gz
+dist/safe-devops-web-0.4.2-linux-amd64.tar.gz
+dist/safe-devops-source-0.4.2.tar.gz
 ```
 
 同时保留展开目录及 SHA-256 校验清单。压缩包外有 `.tar.gz.sha256`，包内有 `SHA256SUMS`。先从可信发布渠道核对摘要，再解包；摘要本身不是代码签名。已有同名产物不会覆盖，构建失败的临时目录会清理。若进程被 SIGKILL 留下 `.lock`，确认没有构建在运行后再由管理员移除该锁。
 
 ```bash
 cd dist
-shasum -a 256 -c safe-devops-server-0.4.1-linux-amd64.tar.gz.sha256
+shasum -a 256 -c safe-devops-server-0.4.2-linux-amd64.tar.gz.sha256
 ```
 
-`scripts/release.sh 0.4.1` 保留为 `make release VERSION=0.4.1` 的等价入口；新版产物按组件、系统和架构拆分，不再把本机 Web 依赖放进通用 Linux 包。
+`scripts/release.sh 0.4.2` 保留为 `make release VERSION=0.4.2` 的等价入口；新版产物按组件、系统和架构拆分，不再把本机 Web 依赖放进通用 Linux 包。
 
 GitHub 发布流程：在目标提交手动运行 `Build packages`，等待全部原生平台构建和该提交的 CI 成功，再创建指向同一提交的版本 tag 与空白 Draft Release。手动运行 `Stage release assets`，输入不带 `v` 的版本号与打包 run ID；它会核对提交 / tag / CI、校验全部 19 个包的 SHA-256、生成源码包和汇总 `SHA256SUMS`，上传后仍保持草稿，由维护者检查再发布。已有资产不会覆盖；失败的部分上传需检查清理后重新运行。
 
@@ -95,11 +95,11 @@ GitHub 发布流程：在目标提交手动运行 `Build packages`，等待全�
 
 ```bash
 make setup-desktop
-make package-desktop VERSION=0.4.1              # 当前系统、当前架构
-make package-macos VERSION=0.4.1 DESKTOP_ARCH=arm64
-make package-macos VERSION=0.4.1 DESKTOP_ARCH=amd64
-make package-linux VERSION=0.4.1 DESKTOP_ARCH=amd64
-make package-windows VERSION=0.4.1 DESKTOP_ARCH=amd64
+make package-desktop VERSION=0.4.2              # 当前系统、当前架构
+make package-macos VERSION=0.4.2 DESKTOP_ARCH=arm64
+make package-macos VERSION=0.4.2 DESKTOP_ARCH=amd64
+make package-linux VERSION=0.4.2 DESKTOP_ARCH=amd64
+make package-windows VERSION=0.4.2 DESKTOP_ARCH=amd64
 ```
 
 macOS 产出 `.dmg` / `.zip`，Linux 产出 `.AppImage` / `.deb`，Windows 产出 NSIS `.exe`。所有系统可指定 `amd64` / `arm64`，默认匹配构建机架构；对应系统的命令必须在该系统执行。输出到 `dist/safe-devops-desktop-版本-系统-架构/`，包含 `SHA256SUMS`。默认包未签名 / 未公证，正式对外发布在受控构建环境配置签名。
@@ -110,7 +110,7 @@ Windows PowerShell 不依赖 Make 的等价入口：
 cd desktop
 npm ci
 cd ..
-$env:VERSION = "0.4.1"
+$env:VERSION = "0.4.2"
 $env:DESKTOP_ARCH = "amd64"
 python scripts/package.py desktop --desktop-os windows
 ```
@@ -139,7 +139,7 @@ make deploy-logs SERVICE=broker LOG_TAIL=100
 
 `DIAGNOSTIC_ROOT` 可选。默认 SQLite；初始化时增加 `DATABASE=postgres` 选择 PostgreSQL。后续命令读取目录的 `.database`，不会根据临时 `DATABASE` 变量切换后端。已有部署不能重新初始化或直接改 `.database` 迁移。
 
-没有 Go 工具链时，可使用已核验的本机 CLI：`SAFE_DEVOPS_BIN=/可信路径/safe-devops make deploy-init ...`。Go CLI 包不能当作 Compose 构建源码；Compose 从源码仓库或 source 包运行。`make docker-build VERSION=0.4.1` 可单独构建镜像。
+没有 Go 工具链时，可使用已核验的本机 CLI：`SAFE_DEVOPS_BIN=/可信路径/safe-devops make deploy-init ...`。Go CLI 包不能当作 Compose 构建源码；Compose 从源码仓库或 source 包运行。`make docker-build VERSION=0.4.2` 可单独构建镜像。
 
 启动会等待健康，超时默认 240 秒，可设 `WAIT_TIMEOUT=600`。失败会保留容器方便 `deploy-status` / `deploy-logs` 定位。`make deploy-check` 校验 Compose 与 Broker 配置，需要已构建镜像；不会打印带数据库连接密码的展开配置。
 
@@ -159,7 +159,7 @@ make deploy-down             # 移除本部署容器、网络；保留持久卷�
 ```bash
 make deploy-backup WORKSPACE=acme
 make deploy-backup WORKSPACE=acme BACKUP_FILE=acme-before-upgrade.json
-make deploy-upgrade VERSION=0.4.1
+make deploy-upgrade VERSION=0.4.2
 ```
 
 备份保存到 `CONFIG_DIR/backups/`，默认文件名含团队、UTC 时间与随机后缀，拒绝覆盖。单团队可省略 WORKSPACE；多团队须明确选择。升级自动按配置备份 **所有团队**，预构建及配置检查完成、所有备份成功后才更新容器。失败不会自动降级数据库或回滚已经执行的业务操作。明确传入 `VERSION=...` 会设置镜像标签；不传时保留 `.env` 的 `SAFEOPS_VERSION`。

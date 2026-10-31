@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Package version (for example 0.4.1-rc.1)
+        description: Package version (for example 0.4.2-rc.1)
         required: true
-        default: 0.4.1
+        default: 0.4.2
 permissions:
   contents: read
 jobs:

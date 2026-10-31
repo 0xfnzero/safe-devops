@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.2](https://github.com/0xfnzero/safe-devops/releases/tag/v0.4.2) — 2026-10-31
+
+Replace the default Electron artwork with the safe-devops shield and terminal logo across the desktop client and Web console.
+
+- Native macOS ICNS, Windows ICO and Linux PNG icons, including multiple sizes and Retina images.
+- New launcher, console, browser favicon and Apple touch icons; the macOS development client also sets its Dock icon.
+- Editable SVG originals and `make icons` to regenerate all platform assets. Source bundles include the branding files.
+- Consistent centered English/Chinese README headers following the sol-trade-sdk layout, without the extra version/navigation line.
+- Updated package versions and deployment examples to 0.4.2.
+
+Desktop installers remain unsigned and macOS builds are not notarized. This release does not change command review or device authentication policy.
+
 ## [0.4.1](https://github.com/0xfnzero/safe-devops/releases/tag/v0.4.1) — 2026-10-31
 
 First public release of safe-devops, an open-source, self-hosted DevSecOps access control platform for development and operations teams.

@@ -30,7 +30,7 @@ import (
 	"safeops/internal/store"
 )
 
-var version = "0.4.1-dev"
+var version = "0.4.2-dev"
 
 func main() {
 	if e := run(); e != nil {

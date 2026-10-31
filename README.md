@@ -167,14 +167,14 @@ The complete guide covers Connector installation, multi-team configuration, TLS,
 
 ```bash
 make check                                  # Go, Web, desktop and script checks
-make package-servers VERSION=0.4.1           # Linux/macOS × amd64/arm64 CLI
-make package-web VERSION=0.4.1               # Current platform's Next standalone
-make package-desktop VERSION=0.4.1           # Current OS/architecture installer
-make release VERSION=0.4.1                   # CLI packages, local Web and source
+make package-servers VERSION=0.4.2           # Linux/macOS × amd64/arm64 CLI
+make package-web VERSION=0.4.2               # Current platform's Next standalone
+make package-desktop VERSION=0.4.2           # Current OS/architecture installer
+make release VERSION=0.4.2                   # CLI packages, local Web and source
 
 make deploy-logs SERVICE=broker
 make deploy-backup WORKSPACE=acme
-make deploy-upgrade VERSION=0.4.1             # Validate + back up all teams first
+make deploy-upgrade VERSION=0.4.2             # Validate + back up all teams first
 ```
 
 Artifacts go to `dist/` with version/platform names and SHA-256 checksums. Desktop commands `package-macos`, `package-windows` and `package-linux` run on the corresponding operating system. Production server services target Linux; macOS CLI packages support administration and development. Web bundles must be built for the deployment OS/architecture. See each [Release](https://github.com/0xfnzero/safe-devops/releases) for available binaries and signing/validation notes.

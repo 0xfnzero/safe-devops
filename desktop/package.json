@@ -1,6 +1,6 @@
 {
   "name": "safe-devops-desktop",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": true,
   "description": "Open-source secure DevOps terminal with device-bound access, scoped commands and AI/human approval.",
   "author": {
