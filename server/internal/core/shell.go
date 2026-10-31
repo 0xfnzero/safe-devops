@@ -33,8 +33,17 @@ func (p ShellPolicy) Validate() error {
 
 func (d DiagnosticPolicy) Admit(line string) (DiagnosticOperation, error) {
 	op, err := d.Parse(line)
+	if d.Shell == nil {
+		return op, err
+	}
 	if err == nil {
-		return op, nil
+		words, _ := Words(line)
+		// Explicit resource:path syntax keeps the scoped built-in reader. Ordinary
+		// commands use real shell semantics and the visible starting directory.
+		explicit := len(words) > 0 && op.Resource != "" && strings.HasPrefix(words[len(words)-1], op.Resource+":")
+		if op.Tool == "status" || explicit {
+			return op, nil
+		}
 	}
 	if d.Shell == nil {
 		return op, errors.New("general command execution is not configured on this server; an administrator must install the reviewed shell executor")
@@ -49,7 +58,7 @@ func (d DiagnosticPolicy) Admit(line string) (DiagnosticOperation, error) {
 // to evade review. Only these exact strings may use automated review.
 func ShellReview(command string) string {
 	switch strings.TrimSpace(command) {
-	case "pwd", "whoami", "uname", "uname -a", "uname -s", "uname -srm":
+	case "ls", "ls -l", "ls -a", "ls -la", "ls -al", "pwd", "whoami", "uname", "uname -a", "uname -s", "uname -srm":
 		return "auto"
 	case "id", "uptime", "df -h", "free -h", "ps aux", "ps -ef":
 		return "ai"

@@ -25,7 +25,12 @@ files=(-f deploy/compose.yaml)
 [[ "$driver" != postgres ]] || files+=(-f deploy/compose.postgres.yaml)
 files+=(-f deploy/compose.connector.yaml)
 compose=(docker compose --env-file "$config_dir/.env" "${files[@]}")
-cleanup(){ "${compose[@]}" down -v --remove-orphans; }
+cleanup(){
+  status=$?
+  if (( status != 0 )); then "${compose[@]}" logs --no-color --tail 100; fi
+  "${compose[@]}" down -v --remove-orphans
+  return "$status"
+}
 trap cleanup EXIT
 "${compose[@]}" config --quiet
 "${compose[@]}" up -d --build --wait --wait-timeout 240

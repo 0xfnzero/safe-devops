@@ -187,7 +187,7 @@ func initCompose(dir, workspace, project, brokerURL, webURL, approval, database 
 			return e
 		}
 	}
-	if e = write("gateway/Caddyfile", []byte("{\n admin off\n auto_https off\n}\n:8443 {\n tls /etc/safe-devops/web.crt /etc/safe-devops/web-tls.key\n reverse_proxy web:3000\n}\n")); e != nil {
+	if e = write("gateway/Caddyfile", []byte("{\n admin off\n auto_https off\n}\nhttp://127.0.0.1:8080 {\n respond /healthz \"ok\" 200\n}\n:8443 {\n tls /etc/safe-devops/web.crt /etc/safe-devops/web-tls.key\n reverse_proxy web:3000\n}\n")); e != nil {
 		return e
 	}
 	env := fmt.Sprintf("SAFEOPS_CONFIG_DIR='%s'\nSAFEOPS_UID=%d\nSAFEOPS_GID=%d\nSAFEOPS_BROKER_PORT=%s\nSAFEOPS_WEB_PORT=%s\nCOMPOSE_PROJECT_NAME=safe-devops-%s\n", dir, uid, gid, brokerPort, webPort, workspace)

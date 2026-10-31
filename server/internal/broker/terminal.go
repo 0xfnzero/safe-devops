@@ -45,7 +45,7 @@ func (b *Broker) terminalCommand(w http.ResponseWriter, r *http.Request, p core.
 		if profile.Diagnostics == nil {
 			return nil, bad(400, "session requires diagnostic profile")
 		}
-		operation, err := profile.Diagnostics.Admit(in.Command)
+		operation, err := profile.Diagnostics.Parse(in.Command)
 		if err != nil {
 			return nil, bad(400, err.Error())
 		}
